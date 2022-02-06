@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-app.listen(PORT, () => console.log("it's alive"));
+app.listen(process.env.PORT || PORT, () => console.log("it's alive"));
 
 app.use(express.json());
 
