@@ -37,13 +37,13 @@ app.listen(process.env.PORT || PORT, async () => {
 
 	await client.connect();
 
-	const locations = client.db("sample_locations").collection("locations");
-
-	const loc_name = "Santa Monica Pier";
-	const loc_tags = ["Pier", "Beach"];
+	const locations_collection = client.db("sample_locations").collection("locations");
+	const loc_name = "The Getty";
+	const loc_tags = ["Museum", "Art"];
 	const loc_city = "Santa Monica";
 
-	const cursor = locations.find({ name: loc_name });
+	const cursor = locations_collection.find({ name: loc_name });
+
 	const loc = cursor.next();
 
 	loc.then((l) => {
@@ -52,7 +52,7 @@ app.listen(process.env.PORT || PORT, async () => {
 			console.log(l);
 		} else {
 			console.log(`Inserting ${loc_name}`);
-			locations.insertOne(
+			locations_collection.insertOne(
 				{ name: loc_name, tags: loc_tags, city: loc_city },
 				(err, data) => {
 					if (err) return console.log(err);

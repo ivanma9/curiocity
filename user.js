@@ -32,7 +32,7 @@ async function main(){
         })
 
         //await listDatabases(client);
-    }catch(e)
+    } catch(e)
     {
         console.error(e);
     } finally{
