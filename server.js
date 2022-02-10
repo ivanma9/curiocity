@@ -3,13 +3,11 @@ console.log(process.env);
 
 const express = require("express");
 const app = express();
-const PORT = 8080;
-
-const { MongoClient } = require("mongodb");
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWORD}@cluster0.r5v7q.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri);
+const PORT = process.env.PORT || 8080;
+const db = require("./db/mongoConn");
 
 app.use(express.json());
+app.use(require("./routes/locations"));
 
 //routes
 app.get("/user", (req, res) => {
@@ -32,32 +30,10 @@ app.post("/user/:id", (req, res) => {
 	});
 });
 
-app.listen(process.env.PORT || PORT, async () => {
-	console.log(`Server is running`);
-
-	await client.connect();
-
-	const locations_collection = client.db("sample_locations").collection("locations");
-	const loc_name = "The Getty";
-	const loc_tags = ["Museum", "Art"];
-	const loc_city = "Santa Monica";
-
-	const cursor = locations_collection.find({ name: loc_name });
-
-	const loc = cursor.next();
-
-	loc.then((l) => {
-		if (l) {
-			console.log(`Already found location named ${loc_name}`);
-			console.log(l);
-		} else {
-			console.log(`Inserting ${loc_name}`);
-			locations_collection.insertOne(
-				{ name: loc_name, tags: loc_tags, city: loc_city },
-				(err, data) => {
-					if (err) return console.log(err);
-				}
-			);
-		}
+db.connectToServer( (err) => {
+	app.listen(PORT, async () => {
+		console.log(`Server is running on ${PORT}`);
 	});
+
 });
+
