@@ -1,15 +1,14 @@
-import axios from "axios";
-import { readFile } from "fs/promises";
-import fetch from "node-fetch";
+//const axios = require('axios');
 
-const credJson = JSON.parse(
-	await readFile(new URL("./credentials.json", import.meta.url))
-);
-const yelp_API_KEY = credJson[process.env.YELP_API_KEY];
+const fetch = require('isomorphic-fetch')
+require('dotenv').config();
+
+const yelp_API_KEY = process.env.YELP_API_KEY;
 console.log(yelp_API_KEY);
 
 const Url = "https://api.yelp.com/v3/businesses/search";
 const paramsy = "?term=food&limit=50&offset=50&radius=10000&location=San+Diego";
+const endpoint = Url + paramsy;
 const PARAMETERS = {
 	term: "food",
 	limit: 50,
@@ -17,11 +16,21 @@ const PARAMETERS = {
 	radius: 10000,
 	location: "San Diego",
 };
-fetch(Url, {
+
+fetch(endpoint, {
 	method: "GET",
-	headers: { Authorization: "Bearer " + API_KEY },
+	headers: { 
+		Authorization: "Bearer " + yelp_API_KEY, 
+		'Content-Type': 'application/json',
+		body : JSON.stringify(PARAMETERS)
+	
+	}
 })
-	.then((res) => res.json())
+	.then((res) => {
+		// console.log(res);
+		return res.json();
+		//throw new Error("could not access the data");
+	})
 	.then((json) => console.log(json))
 	.catch((err) => console.error(err));
 // const instance = axios.create({
