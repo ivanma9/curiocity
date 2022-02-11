@@ -1,6 +1,6 @@
 const express = require("express");
 
-// recordRoutes is an instance of the express router.
+// locationRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /listings.
 const locationRoutes = express.Router();
@@ -9,7 +9,7 @@ const locationRoutes = express.Router();
 const dbo = require("../db/mongoConn");
 
 // This section will help you get a list of all the locations.
-locationRoutes.route("/location").get(async function (_req, res) {
+locationRoutes.route("/location").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
 
 	dbConnect
@@ -23,10 +23,8 @@ locationRoutes.route("/location").get(async function (_req, res) {
 				res.json(result);
 			}
 		});
-
-
         
-	// // await client.connect();
+	// // await client.connect()
 
 	// const locations_collection = client
 	// 	.db("sample_locations")
