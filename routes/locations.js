@@ -13,6 +13,7 @@ locationRoutes.route("/location").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
 
 	dbConnect
+		.db("businesses")
 		.collection("locations")
 		.find({})
 		.limit(50)
@@ -23,7 +24,6 @@ locationRoutes.route("/location").get(function (_req, res) {
 				res.json(result);
 			}
 		});
-        
 	// // await client.connect()
 
 	// const locations_collection = client
@@ -51,9 +51,6 @@ locationRoutes.route("/location").get(function (_req, res) {
 	// 		);
 	// 	}
 	// });
-
-
-
 });
 
 module.exports = locationRoutes;
