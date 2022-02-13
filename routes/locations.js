@@ -11,10 +11,9 @@ const dbo = require("../db/mongoConn");
 // This section will help you get a list of all the locations.
 locationRoutes.route("/location").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("businesses").collection("locations");
 
-	dbConnect
-		.db("businesses")
-		.collection("locations")
+	collection
 		.find({})
 		.limit(50)
 		.toArray(function (err, result) {

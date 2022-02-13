@@ -11,10 +11,9 @@ const dbo = require("../db/mongoConn");
 // This section will help you get a list of all the users in "user_info".
 userRoutes.route("/elainegetsrequed").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("accounts").collection("user_info");
 
-	dbConnect
-		.db("accounts")
-		.collection("user_info")
+	collection
 		.find({})
 		.limit(50)
 		.toArray(function (err, result) {
@@ -24,14 +23,14 @@ userRoutes.route("/elainegetsrequed").get(function (_req, res) {
 				res.json(result);
 			}
 		});
-
 });
 
 // trying different collections "userinfo"
 userRoutes.route("/eyo").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("accounts").collection("user_info");
 
-	dbConnect
+	collection
 		.db("accounts")
 		.collection("userinfo")
 		.find({})
