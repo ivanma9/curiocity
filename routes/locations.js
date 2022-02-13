@@ -23,7 +23,6 @@ locationRoutes.route("/location").get(function (_req, res) {
 				res.json(result);
 			}
 		});
-
 	// // await client.connect()
 
 	// const locations_collection = client
