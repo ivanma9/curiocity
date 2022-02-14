@@ -7,6 +7,10 @@ const yelpRoutes = express.Router();
 // This will help us connect to the database
 const dbo = require("../db/mongoConn");
 
+//API KEY for yelp account
+const yelp_API_KEY = process.env.YELP_API_KEY;
+
+
 // This section will help you get a list of all the locations.
 yelpRoutes.route("/business").get(function (_req, res) {
 	const dbConnect = dbo.getDb();
