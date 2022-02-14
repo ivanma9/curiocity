@@ -8,6 +8,8 @@ const db = require("./db/mongoConn");
 
 app.use(express.json());
 app.use(require("./routes/locations"));
+app.use(require("./routes/user"));
+
 
 //routes
 app.get("/user", (req, res) => {
