@@ -10,7 +10,7 @@ module.exports = {
         return callback(err);
       }
 
-      dbConnection = db.db('accounts');
+      dbConnection = db;
       console.log('Successfully connected to MongoDB.');
 
       return callback();

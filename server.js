@@ -11,6 +11,7 @@ app.use(require("./routes/locations"));
 app.use(require("./routes/user"));
 
 
+
 //routes
 app.get("/user", (req, res) => {
 	res.status(200).send({
@@ -31,6 +32,15 @@ app.post("/user/:id", (req, res) => {
 		name: `Bobby with your ${favColor} and ID of ${id}`,
 	});
 });
+
+//for user.js
+app.get('/auth', function(req, res){
+	res.send({response:app.get('response')});
+  });
+  
+app.get('/signedup', function(req, res){
+	res.send({response:app.get('su')});
+  });
 
 db.connectToServer( (err) => {
 	app.listen(PORT, async () => {

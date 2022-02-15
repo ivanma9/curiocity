@@ -1,6 +1,8 @@
 const express = require("express");
+// const req = require("express/lib/request");
 
-// locationRoutes is an instance of the express router.
+
+// userRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /listings.
 const userRoutes = express.Router();
@@ -8,12 +10,12 @@ const userRoutes = express.Router();
 // This will help us connect to the database
 const dbo = require("../db/mongoConn");
 
-// This section will help you get a list of all the locations.
-userRoutes.route("/elainegetsrequed").get(function (_req, res) {
+// This section will help you get a list of all the users in "user_info".
+userRoutes.route("/elainegetsrequed").get(function (req, res) {
 	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("accounts").collection("user_info");
 
-	dbConnect
-		.collection("user_info")
+	collection
 		.find({})
 		.limit(50)
 		.toArray(function (err, result) {
@@ -23,7 +25,82 @@ userRoutes.route("/elainegetsrequed").get(function (_req, res) {
 				res.json(result);
 			}
 		});
+});
+
+userRoutes.route("/test").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	
+	const users = dbConnect.db("accounts").collection("user_info");
+	
+	users.insertOne({username: req.body.username, password: req.body.password});
+	res.json("just inserted something");
 
 });
+
+userRoutes.route("/signup").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	
+	const users = dbConnect.db("accounts").collection("user_info");
+	const cursor = users.find({username: req.body.username});
+	const user = cursor.next();
+	user.then((u) => {
+		if(u)
+		{
+			console.log(u);
+			// app.set('su', 'failed');
+			// res.redirect('/signedup');
+
+			res.json("sign up failed");
+		}
+		else
+		{
+			users.insertOne({username: req.body.username, password: req.body.password}, (err, data) => {
+				if(err) return console.log(err);
+			})
+			// app.set('su', 'success');
+          	// res.redirect('/signedup');
+
+			res.json("sign up successfully!");
+		}
+	});
+});
+
+userRoutes.route("/login").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	
+	const users = dbConnect.db("accounts").collection("user_info");
+	const cursor = users.find({username: req.body.username});
+	const user = cursor.next();
+
+	user.then((u) => {
+		if(u)
+		{
+			if(req.body.password == u.password)
+			{
+				// app.set('response', 'authorized');
+          		// res.redirect('/auth');
+
+				res.json("authorized login");
+			}
+			else
+			{
+				// app.set('response', 'failed');
+         		// res.redirect('/auth');
+
+				res.json("unauthorized login");
+			}
+		}
+		else
+		{
+			// app.set('response', 'new');
+         	// res.redirect('/auth');
+
+			res.json("need to register account");
+		}
+	});
+});
+
+
+
 
 module.exports = userRoutes;
