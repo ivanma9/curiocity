@@ -42,3 +42,27 @@ tagRoutes.route('/businesses').get(async function (_req, res) {
   }
   
 });
+
+
+recordRoutes.route('/insert').post(function (req, res) {
+  const dbConnect = dbo.getDb();
+  const tag = {
+    name: req.body.name,
+    category: req.body.category
+  };
+
+  dbConnect
+    .collection('tags')
+    .insertOne(tag, function (err, result) {
+      if (err) {
+        res.status(400).send('Error inserting tag!');
+      } else {
+        console.log(`Added a new tag with id ${result.insertedId}`);
+        res.status(204).send();
+        res.json(tag);
+      }
+    });
+});
+
+
+module.exports = tagRoutes;
