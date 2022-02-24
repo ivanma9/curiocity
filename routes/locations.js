@@ -65,6 +65,7 @@ locationRoutes.route("/insert").post(function (req, res) {
 		
 });
 
+//change city name or insert tag
 locationRoutes.route("/update").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("locations");
@@ -79,7 +80,7 @@ locationRoutes.route("/update").post(function (req, res) {
 	if (req.body.tags.length != 0){
 		collection.updateOne( { name: req.body.name},
 			{
-				$push: { tags: { $each: req.body.tags}}
+				$addToSet: { tags: { $each: req.body.tags}}
 			})
 	}
 	
@@ -87,5 +88,21 @@ locationRoutes.route("/update").post(function (req, res) {
 	res.status(204).send();
 });
 
+locationRoutes.route("/matchtag").get(function (req, res) {
+	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("businesses").collection("locations");
+
+	collection
+		.find({tags: {$all: req.body.tags}})
+		.toArray(function (err, result) {
+			if (err) {
+				res.status(400).send("Error fetching listings!");
+			} else if (result.length == 0) {
+				res.status(400).send(`No locations with tags: ${req.body.tags}`);
+			} else {
+				res.json(result);
+			}
+		});
+});
 
 module.exports = locationRoutes;
