@@ -9,7 +9,7 @@ const locationRoutes = express.Router();
 // This will help us connect to the database
 const dbo = require("../db/mongoConn");
 
-// This section will help you get a list of all the locations.
+//fetch location by name
 locationRoutes.route("/location").get(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("locations");
@@ -27,6 +27,7 @@ locationRoutes.route("/location").get(function (req, res) {
 		});
 });
 
+//insert location into db
 locationRoutes.route("/insert").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 
@@ -63,5 +64,28 @@ locationRoutes.route("/insert").post(function (req, res) {
 		});
 		
 });
+
+locationRoutes.route("/update").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("businesses").collection("locations");
+
+	if (req.body.city.length != 0){
+		collection.updateOne( { name: req.body.name },
+		{
+			$set: { city: req.body.city}
+		})
+	}
+
+	if (req.body.tags.length != 0){
+		collection.updateOne( { name: req.body.name},
+			{
+				$push: { tags: { $each: req.body.tags}}
+			})
+	}
+	
+	console.log(`Updated ${req.body.name}`);
+	res.status(204).send();
+});
+
 
 module.exports = locationRoutes;
