@@ -28,22 +28,24 @@ yelpRoutes.route("/business").get(function (req, res) {
 yelpRoutes.route("/insertbusinesses").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("locations");
-	const resFromScraper = JSON.parse(req.body);
-    console.log(typeof(resFromScraper))
+	const resFromScraper = req.body;
 
-	for (let cityBusinesses in resFromScraper) {
-        console.log(cityBusinesses);
-		collection
-			.insertMany(cityBusinesses["businesses"])
-			.then(() => {
-                res.json("inserted successfully");
-                res.status(200).send();
-            })
-			.err((err) => {
-                res.json("unsucessful");
-                res.status(400).send();
-            });
-	}
+    res.send(resFromScraper);
+    
+
+	// for (let cityBusinesses in resFromScraper) {
+    //     console.log(cityBusinesses);
+	// 	collection
+	// 		.insertMany(cityBusinesses["businesses"])
+	// 		.then(() => {
+    //             res.json("inserted successfully");
+    //             res.status(200).send();
+    //         })
+	// 		.err((err) => {
+    //             res.json("unsucessful");
+    //             res.status(400).send();
+    //         });
+	// }
 });
 
 module.exports = yelpRoutes;

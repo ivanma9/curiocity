@@ -20,7 +20,7 @@ ENDPOINT = 'https://api.yelp.com/v3/businesses/search'
 HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 # Server endpoint
-HEROKU_SERVER = 'localhost:8080/insertbusinesses'#'https://enigmatic-brook-87129.herokuapp.com'
+HEROKU_SERVER = 'http://localhost:8080/insertbusinesses'#'https://enigmatic-brook-87129.herokuapp.com'
 
 test_arr = ["Agoura Hills",
 "Alhambra",]
@@ -141,13 +141,14 @@ def getYelpAPI():
     response = {
         "res": response_array
     }
-    return json.dumps(response_array, indent=3)
+    return json.dumps(response)
 
-    
-# requests.post(HEROKU_SERVER, json=getYelpAPI())
+f = requests.post(HEROKU_SERVER, json=json.loads(getYelpAPI()))
 
+# f2 = requests.post(HEROKU_SERVER, json={"name": "Guess"})
+
+print(f.json())
 # getYelpAPI()
-print((getYelpAPI()))
 # for i in getYelpAPI():
 #     print(json.dumps(i))
 
