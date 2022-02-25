@@ -1,11 +1,3 @@
-#Business Search      URL -- 'https://api.yelp.com/v3/businesses/search'
-#Business Match       URL -- 'https://api.yelp.com/v3/businesses/matches'
-#Phone Search         URL -- 'https://api.yelp.com/v3/businesses/search/phone'
-
-#Business Details     URL -- 'https://api.yelp.com/v3/businesses/{id}'
-#Business Reviews     URL -- 'https://api.yelp.com/v3/businesses/{id}/reviews'
-
-from math import radians
 import requests
 import json
 import os
@@ -21,9 +13,6 @@ HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 # Server endpoint
 HEROKU_SERVER = 'http://localhost:8080/insertbusinesses'#'https://enigmatic-brook-87129.herokuapp.com'
-
-test_arr = ["Agoura Hills",
-"Alhambra",]
 
 # Define my parameters of the search
 LA_COUNTY_CITIES = [
@@ -119,15 +108,16 @@ LA_COUNTY_CITIES = [
 
 PARAMETERS_LOS_ANGELES = []
 
-for elem in test_arr:
+# fills out the parameters object array for LA county
+for elem in LA_COUNTY_CITIES:
     PARAMETERS_LOS_ANGELES.append({
         'location': elem,
         'radius': 40000
     })
 
 
-
-def getYelpAPI():
+# function to get JSON object of aggregated queries of businesses in all the cities of LA county
+def getYelpAPI_LA():
     # Make a request to the Yelp API
     response_array = []
     for cityParameter in PARAMETERS_LOS_ANGELES:
@@ -141,16 +131,6 @@ def getYelpAPI():
     response = {
         "res": response_array
     }
-    return json.dumps(response)
+    return json.loads(json.dumps(response))
 
-f = requests.post(HEROKU_SERVER, json=json.loads(getYelpAPI()))
-
-# f2 = requests.post(HEROKU_SERVER, json={"name": "Guess"})
-
-print(f.json())
-# getYelpAPI()
-# for i in getYelpAPI():
-#     print(json.dumps(i))
-
-# print the response
-# print(json.dumps(business_data, indent = 3))
+f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
