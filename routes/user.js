@@ -47,8 +47,7 @@ userRoutes.route("/signup").post(function (req, res) {
 		if(u)
 		{
 			console.log(u);
-			// app.set('su', 'failed');
-			// res.redirect('/signedup');
+			
 
 			res.json("sign up failed");
 		}

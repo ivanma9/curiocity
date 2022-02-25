@@ -33,20 +33,3 @@ app.post("/user/:id", (req, res) => {
 		name: `Bobby with your ${favColor} and ID of ${id}`,
 	});
 });
-
-//for user.js
-app.get('/auth', function(req, res){
-	res.send({response:app.get('response')});
-  });
-  
-app.get('/signedup', function(req, res){
-	res.send({response:app.get('su')});
-  });
-
-db.connectToServer( (err) => {
-	app.listen(PORT, async () => {
-		console.log(`Server is running on ${PORT}`);
-	});
-
-});
-
