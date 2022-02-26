@@ -32,7 +32,11 @@ userRoutes.route("/test").post(function (req, res) {
 	
 	const users = dbConnect.db("accounts").collection("user_info");
 	
-	users.insertOne({username: req.body.username, password: req.body.password});
+	users.insertOne({username: req.body.username,
+					password: req.body.password,
+					email: req.body.email,
+					firstname: req.body.firstname,
+					lastname: req.body.lastname });
 	res.json("just inserted something");
 
 });
@@ -53,11 +57,13 @@ userRoutes.route("/signup").post(function (req, res) {
 		}
 		else
 		{
-			users.insertOne({username: req.body.username, password: req.body.password}, (err, data) => {
+			users.insertOne({username: req.body.username,
+				password: req.body.password,
+				email: req.body.email,
+				firstname: req.body.firstname,
+				lastname: req.body.lastname}, (err, data) => {
 				if(err) return console.log(err);
 			})
-			// app.set('su', 'success');
-          	// res.redirect('/signedup');
 
 			res.json("sign up successfully!");
 		}
@@ -76,23 +82,17 @@ userRoutes.route("/login").post(function (req, res) {
 		{
 			if(req.body.password == u.password)
 			{
-				// app.set('response', 'authorized');
-          		// res.redirect('/auth');
 
 				res.json("authorized login");
 			}
 			else
 			{
-				// app.set('response', 'failed');
-         		// res.redirect('/auth');
 
 				res.json("unauthorized login");
 			}
 		}
 		else
 		{
-			// app.set('response', 'new');
-         	// res.redirect('/auth');
 
 			res.json("need to register account");
 		}
