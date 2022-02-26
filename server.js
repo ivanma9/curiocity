@@ -33,3 +33,10 @@ app.post("/user/:id", (req, res) => {
 		name: `Bobby with your ${favColor} and ID of ${id}`,
 	});
 });
+
+db.connectToServer( (err) => {
+	app.listen(PORT, async () => {
+		console.log(`Server is running on ${PORT}`);
+	});
+
+});
