@@ -55,3 +55,57 @@ Ex:
 
 `"need to register account"` --> username does not exist in database
 
+***CurioCity***
+
+Yelp calls
+Using Yelp Fusion API
+
+
+In node to run locally,
+`npm install`
+`node yelptest.js`
+<br/>
+
+# Schemas
+
+In order to run the script to load the yelp API data run 
+
+## Schema for yelp post request
+`python3 getYelpAPI.py`
+```
+{
+    "res": [
+        {
+            "businesses": [
+                {
+                    "id": "1234",
+                    "name": "Uncle Af's"
+                },
+                {
+                    "id": "5678",
+                    "name": "Haggen Dauz"
+                }
+            ]
+        },
+        {
+            "businesses": [
+                {
+                    "id": "4321",
+                    "name": "Howlin Ray's"
+                },
+                {
+                    "id": "8765",
+                    "name": "Ten Ren tea"
+                }
+            ]
+        }
+    ]
+}
+```
+Each time it says `{"businesses": [<array of results>]}` , this means that this is one yelp query did for city A.
+Each entry inside `'businesses'` is represented as a shortened object of the whole location or business entry from yelp
+The goal is to be able to take every single location or business entry and add that to the database. Trying to do it with `insertMany()` for every single `'businesses'`
+
+.env variables
+make sure to put `require('dotenv').config();` to use env variables.
+
