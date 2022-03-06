@@ -9,7 +9,8 @@ load_dotenv()
 
 # Define my API Key, My Endpoint, and My Headerg
 API_KEY = os.environ.get("YELP_API_KEY")
-ENDPOINT = 'https://api.yelp.com/v3/businesses/search'
+SEARCH_ENDPOINT = 'https://api.yelp.com/v3/businesses/search'
+CATEGORY_ENDPOINT = 'https://api.yelp.com/v3/categories'
 HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 
@@ -117,17 +118,39 @@ for elem in LA_COUNTY_CITIES:
         'radius': 40000
     })
 
+# This function gets oarent aliases from the base alias list 
+# Returns list of tags to be added to the business
+def getTagsFromAliases(aliases):
+
+    tags_set = set()
+
+    for alias, title in aliases:
+        # hit Yelp Category api to get parent aliases
+        category_url = CATEGORY_ENDPOINT + '/' + alias
+        category_request = requests.get(
+                        url =  category_url,
+                        headers = HEADERS
+                        ).json()
+        for parent_alias in category_request["category"]["parent_aliases"]:
+            # TODO: findTitle in tag - kunal parent_alias is key
+            parent_tag_title = parent_alias
+
+            tags_set.add(parent_tag_title)
+
+        # Add title to tags_list
+        tags_set.add(title)
+
+    list(tags_set)
+
+
+
 #function to get list of alias tuples
 def getCategories(search_response_body):
-    x = json.dumps(search_response_body)
+    search_response_dict = json.loads(json.dumps(search_response_body))
 
-    y = json.loads(x)
+    res = search_response_body["res"]
 
-    # print(y["res"][1])
-
-    res = y["res"]
-
-    aliases = []
+    overall_aliases = []
 
     for item in res:
         businesses = item["businesses"]
@@ -136,13 +159,15 @@ def getCategories(search_response_body):
             # print(business["categories"])
             categories = business["categories"]
             #each new_list is one array of aliases which is what you want
-            new_list = []
+            aliases = []
             for category in categories:
                 # print(category)
                 my_tuple = (category["alias"], category["title"])
                 # print(my_tuple)
-                new_list.append(my_tuple)
-            aliases.append(new_list)
+                aliases.append(my_tuple)
+
+            getTagsFromAliases(aliases)
+            overall_aliases.append(aliases)
 
 
     for item in aliases:
@@ -157,7 +182,7 @@ def getYelpAPI_LA():
     for cityParameter in PARAMETERS_LOS_ANGELES:
         response_array.append(
             requests.get(
-                    url = ENDPOINT,
+                    url = SEARCH_ENDPOINT,
                     params = cityParameter,
                     headers = HEADERS
                     ).json())
@@ -177,6 +202,17 @@ def getYelpAPI_LA():
     return aliases
 
 
-getYelpAPI_LA()
+
+
+
+# Open categories
+
+# print(getYelpAPI_LA())
+
+# Find parent categories for 
+# ONE business
+# aliases [(alias, title)]
+
+
 
 # f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
