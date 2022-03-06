@@ -144,7 +144,7 @@ def getTagsFromAliases(aliases):
 
 
 
-#function to get list of alias tuples
+# This function gets list of alias tuples
 def getCategories(search_response_body):
     search_response_dict = json.loads(json.dumps(search_response_body))
 
@@ -166,14 +166,16 @@ def getCategories(search_response_body):
                 # print(my_tuple)
                 aliases.append(my_tuple)
 
-            getTagsFromAliases(aliases)
+            # this is the tags list we want to add to the business
+            tags_list = getTagsFromAliases(aliases)
+
+            print(tags_list)
+
+            # TODO: add tag list to entry location/business
+
             overall_aliases.append(aliases)
 
-
-    for item in aliases:
-        print(item)
-
-    return aliases
+    return overall_aliases
 
 # function to get JSON object of aggregated queries of businesses in all the cities of LA county
 def getYelpAPI_LA():
