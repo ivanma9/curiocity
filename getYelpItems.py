@@ -1,3 +1,4 @@
+from re import search
 import requests
 import json
 import os
@@ -6,10 +7,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# Define my API Key, My Endpoint, and My Header
+# Define my API Key, My Endpoint, and My Headerg
 API_KEY = os.environ.get("YELP_API_KEY")
 ENDPOINT = 'https://api.yelp.com/v3/businesses/search'
 HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
+
 
 # Server endpoint
 HEROKU_SERVER = 'http://localhost:8080/insertbusinesses'#'https://enigmatic-brook-87129.herokuapp.com'
@@ -115,6 +117,38 @@ for elem in LA_COUNTY_CITIES:
         'radius': 40000
     })
 
+#function to get list of alias tuples
+def getCategories(search_response_body):
+    x = json.dumps(search_response_body)
+
+    y = json.loads(x)
+
+    # print(y["res"][1])
+
+    res = y["res"]
+
+    aliases = []
+
+    for item in res:
+        businesses = item["businesses"]
+        # print(businesses)
+        for business in businesses:
+            # print(business["categories"])
+            categories = business["categories"]
+            #each new_list is one array of aliases which is what you want
+            new_list = []
+            for category in categories:
+                # print(category)
+                my_tuple = (category["alias"], category["title"])
+                # print(my_tuple)
+                new_list.append(my_tuple)
+            aliases.append(new_list)
+
+
+    for item in aliases:
+        print(item)
+
+    return aliases
 
 # function to get JSON object of aggregated queries of businesses in all the cities of LA county
 def getYelpAPI_LA():
@@ -131,6 +165,18 @@ def getYelpAPI_LA():
     response = {
         "res": response_array
     }
-    return json.loads(json.dumps(response))
 
-f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+    search_response_body = json.loads(json.dumps(response))
+
+    aliases = getCategories(search_response_body)
+
+    
+    
+
+    print(aliases)
+    return aliases
+
+
+getYelpAPI_LA()
+
+# f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
