@@ -112,7 +112,7 @@ LA_COUNTY_CITIES = [
 PARAMETERS_LOS_ANGELES = []
 
 # fills out the parameters object array for LA county
-for elem in LA_COUNTY_CITIES:
+for elem in LA_COUNTY_CITIES[1:2]:
     PARAMETERS_LOS_ANGELES.append({
         'location': elem,
         'radius': 40000
@@ -124,6 +124,7 @@ def getTagsFromAliases(aliases):
 
     tags_set = set()
 
+
     for alias, title in aliases:
         # hit Yelp Category api to get parent aliases
         category_url = CATEGORY_ENDPOINT + '/' + alias
@@ -134,13 +135,14 @@ def getTagsFromAliases(aliases):
         for parent_alias in category_request["category"]["parent_aliases"]:
             # TODO: findTitle in tag - kunal parent_alias is key
             parent_tag_title = parent_alias
+            
 
             tags_set.add(parent_tag_title)
 
         # Add title to tags_list
         tags_set.add(title)
 
-    list(tags_set)
+    return list(tags_set)
 
 
 
@@ -169,7 +171,7 @@ def getCategories(search_response_body):
             # this is the tags list we want to add to the business
             tags_list = getTagsFromAliases(aliases)
 
-            print(tags_list)
+            print(getTagsFromAliases(aliases))
 
             # TODO: add tag list to entry location/business
 
@@ -196,8 +198,6 @@ def getYelpAPI_LA():
     search_response_body = json.loads(json.dumps(response))
 
     aliases = getCategories(search_response_body)
-
-    
     
 
     print(aliases)
@@ -209,7 +209,7 @@ def getYelpAPI_LA():
 
 # Open categories
 
-# print(getYelpAPI_LA())
+(getYelpAPI_LA())
 
 # Find parent categories for 
 # ONE business
