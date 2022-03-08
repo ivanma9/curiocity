@@ -118,7 +118,7 @@ for elem in LA_COUNTY_CITIES[1:2]:
         'radius': 40000
     })
 
-# This function gets oarent aliases from the base alias list 
+# This function gets parent aliases from the base alias list 
 # Returns list of tags to be added to the business
 def getTagsFromAliases(aliases):
 
@@ -156,24 +156,30 @@ def getCategories(search_response_body):
 
     for item in res:
         businesses = item["businesses"]
-        # print(businesses)
-        for business in businesses:
-            # print(business["categories"])
+        # for each business
+        for business in businesses:            
             categories = business["categories"]
-            #each new_list is one array of aliases which is what you want
+            # each aliases is one array of aliases for one business
             aliases = []
             for category in categories:
-                # print(category)
                 my_tuple = (category["alias"], category["title"])
-                # print(my_tuple)
                 aliases.append(my_tuple)
 
             # this is the tags list we want to add to the business
             tags_list = getTagsFromAliases(aliases)
 
-            print(getTagsFromAliases(aliases))
+            # print(getTagsFromAliases(aliases))
 
-            # TODO: add tag list to entry location/business
+            # TODO: new JSON body of location/business
+            curiocity_business = json.dumps({
+                "name": business["name"],
+                "phone": business["phone"],
+                "price": business["price"],
+                "image_url": business["image_url"],
+                "location": business["location"],
+                "coordinates": business["coordinates"],
+                "tags": tags_list
+            })
 
             overall_aliases.append(aliases)
 
@@ -199,11 +205,7 @@ def getYelpAPI_LA():
 
     aliases = getCategories(search_response_body)
     
-
-    print(aliases)
     return aliases
-
-
 
 
 
