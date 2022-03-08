@@ -1,3 +1,4 @@
+from operator import is_
 from re import search
 import requests
 import json
@@ -182,17 +183,22 @@ def construct_business(search_response_body):
             # TODO: grab data from details of business using yelp Business Details API
             yelp_id = business.get("id")
             details_response = get_business_details(yelp_id)
-            
-            
+            yelp_photos = details_response.get("photos")
+            hours = details_response.get("hours")
+            special_hours = details_response.get("special_hours")
+            is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
             curiocity_business_json = json.dumps({
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
-                "image_url": business.get("image_url"),
+                "photos": yelp_photos,
                 "location": business.get("location"),
                 "coordinates": business.get("coordinates"),
+                "hours": hours,
+                "special_hours": special_hours,
+                "is_closed": is_closed,
                 "tags": tags_list
             })
 
