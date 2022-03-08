@@ -11,6 +11,7 @@ load_dotenv()
 API_KEY = os.environ.get("YELP_API_KEY")
 SEARCH_ENDPOINT = 'https://api.yelp.com/v3/businesses/search'
 CATEGORY_ENDPOINT = 'https://api.yelp.com/v3/categories'
+BUSINESS_DETAILS_ENDPOINT = 'https://api.yelp.com/v3/businesses'
 HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 
@@ -112,6 +113,7 @@ LA_COUNTY_CITIES = [
 PARAMETERS_LOS_ANGELES = []
 
 # fills out the parameters object array for LA county
+# TODO: change [1:2] to all cities eventually
 for elem in LA_COUNTY_CITIES[1:2]:
     PARAMETERS_LOS_ANGELES.append({
         'location': elem,
@@ -121,10 +123,7 @@ for elem in LA_COUNTY_CITIES[1:2]:
 # This function gets parent aliases from the base alias list 
 # Returns list of tags to be added to the business
 def getTagsFromAliases(aliases):
-
     tags_set = set()
-
-
     for alias, title in aliases:
         # hit Yelp Category api to get parent aliases
         category_url = CATEGORY_ENDPOINT + '/' + alias
@@ -142,48 +141,65 @@ def getTagsFromAliases(aliases):
         # Add title to tags_list
         tags_set.add(title)
 
+    # return list of the tags set
     return list(tags_set)
 
+def get_business_details(id):
+    details_url = BUSINESS_DETAILS_ENDPOINT + '/' + id
+    details_request = requests.get(
+                    url =  details_url,
+                    headers = HEADERS
+                    ).json()
+    return details_request
 
+# This function constructs a business from the yelp format to the curiocity format
+def construct_business(search_response_body):
+    
+    # Return business
+    curiocity_businesses = []
 
-# This function gets list of alias tuples
-def getCategories(search_response_body):
-    search_response_dict = json.loads(json.dumps(search_response_body))
+    res_search_queries = search_response_body["res"]
 
-    res = search_response_body["res"]
-
-    overall_aliases = []
-
-    for item in res:
-        businesses = item["businesses"]
+    for city_query in res_search_queries:
+        businesses = city_query["businesses"]
         # for each business
-        for business in businesses:            
-            categories = business["categories"]
-            # each aliases is one array of aliases for one business
-            aliases = []
-            for category in categories:
-                my_tuple = (category["alias"], category["title"])
-                aliases.append(my_tuple)
+        for business in businesses:           
 
-            # this is the tags list we want to add to the business
-            tags_list = getTagsFromAliases(aliases)
+            # Gathering aliases from the categories 
+            categories = business.get("categories")
+            if (categories):
+                # each aliases is one array of aliases for one business
+                aliases = []
+                for category in categories:
+                    my_tuple = (category["alias"], category["title"])
+                    aliases.append(my_tuple)
 
-            # print(getTagsFromAliases(aliases))
+                # this is the tags list we want to add to the business
+                tags_list = getTagsFromAliases(aliases)
+
+                print(getTagsFromAliases(aliases))
+
+            # TODO: grab data from details of business using yelp Business Details API
+            yelp_id = business.get("id")
+            details_response = get_business_details(yelp_id)
+            
+            
 
             # TODO: new JSON body of location/business
-            curiocity_business = json.dumps({
-                "name": business["name"],
-                "phone": business["phone"],
-                "price": business["price"],
-                "image_url": business["image_url"],
-                "location": business["location"],
-                "coordinates": business["coordinates"],
+            curiocity_business_json = json.dumps({
+                "name": business.get("name"),
+                "phone": business.get("phone"),
+                "price": business.get("price"),
+                "image_url": business.get("image_url"),
+                "location": business.get("location"),
+                "coordinates": business.get("coordinates"),
                 "tags": tags_list
             })
 
-            overall_aliases.append(aliases)
+            # Add json to business array
+            curiocity_businesses.append(curiocity_business_json)
 
-    return overall_aliases
+    return curiocity_businesses
 
 # function to get JSON object of aggregated queries of businesses in all the cities of LA county
 def getYelpAPI_LA():
@@ -203,9 +219,12 @@ def getYelpAPI_LA():
 
     search_response_body = json.loads(json.dumps(response))
 
-    aliases = getCategories(search_response_body)
-    
-    return aliases
+    # Create an updated json from the yelp search with what curiocity wants
+    updated_businesses_array = construct_business(search_response_body)
+    updated_businesses_json = {
+        "res": updated_businesses_array
+    }
+    return json.loads(json.dumps(updated_businesses_json))
 
 
 
