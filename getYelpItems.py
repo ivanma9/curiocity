@@ -180,7 +180,7 @@ def construct_business(search_response_body):
 
                 print(getTagsFromAliases(aliases))
 
-            # TODO: grab data from details of business using yelp Business Details API
+            # grab data from details of business using yelp Business Details API
             yelp_id = business.get("id")
             details_response = get_business_details(yelp_id)
             yelp_photos = details_response.get("photos")
