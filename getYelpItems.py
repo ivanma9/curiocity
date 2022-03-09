@@ -3,6 +3,7 @@ from re import search
 import requests
 import json
 import os
+from parse import titles
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -132,15 +133,15 @@ def getTagsFromAliases(aliases):
                         url =  category_url,
                         headers = HEADERS
                         ).json()
+        
         for parent_alias in category_request["category"]["parent_aliases"]:
-            # TODO: findTitle in tag - kunal parent_alias is key
-            parent_tag_title = parent_alias
-            
-
-            tags_set.add(parent_tag_title)
+            if parent_alias in titles:
+                parent_tag_title = titles[parent_alias] 
+                tags_set.add(parent_tag_title)
 
         # Add title to tags_list
-        tags_set.add(title)
+        if alias in titles:
+            tags_set.add(title)
 
     # return list of the tags set
     return list(tags_set)
