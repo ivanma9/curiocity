@@ -179,7 +179,7 @@ def construct_business(search_response_body):
                 # this is the tags list we want to add to the business
                 tags_list = getTagsFromAliases(aliases)
 
-                print(getTagsFromAliases(aliases))
+                #print(getTagsFromAliases(aliases))
 
             # grab data from details of business using yelp Business Details API
             yelp_id = business.get("id")
@@ -233,11 +233,7 @@ def getYelpAPI_LA():
     }
     return json.loads(json.dumps(updated_businesses_json))
 
-
-
 # Open categories
-
-(getYelpAPI_LA())
 
 # Find parent categories for 
 # ONE business

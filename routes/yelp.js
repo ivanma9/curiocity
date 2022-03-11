@@ -28,9 +28,28 @@ yelpRoutes.route("/business").get(function (req, res) {
 yelpRoutes.route("/insertbusinesses").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("locations");
-	const resFromScraper = req.body;
+	const resFromScraper = req.body['res'];
+	var business_count = resFromScraper.length;
 
     res.send(resFromScraper);
+
+	for(var i =0; i<business_count; ++i){
+		let business = resFromScraper[i];
+		console.log(business);
+		collection.updateOne(business, {$set : business}, {upsert:true})
+		.then(() =>{
+			console.log('inserted succesfully')
+			res.status(200).send();
+		})
+		.catch((err) => {
+			
+			res.send('unsucessful');
+			res.status(400).send();
+		})
+	}
+
+
+
     
 
 	// for (let cityBusinesses in resFromScraper) {
