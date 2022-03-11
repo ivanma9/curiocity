@@ -28,7 +28,7 @@ locationRoutes.route("/location").get(function (req, res) {
 });
 
 //insert location into db
-locationRoutes.route("/insert").post(function (req, res) {
+locationRoutes.route("insert").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 
 	const location = {
@@ -99,6 +99,26 @@ locationRoutes.route("/matchtag").get(function (req, res) {
 				res.status(400).send("Error fetching listings!");
 			} else if (result.length == 0) {
 				res.status(400).send(`No locations with tags: ${req.body.tags}`);
+			} else {
+				res.json(result);
+			}
+		});
+});
+
+locationRoutes.route("/query").get(function (req, res) {
+	const dbConnect = dbo.getDb();
+	const collection = dbConnect.db("businesses").collection("yelp_test");
+
+	const query = req.body;
+	console.log(query);
+
+	collection
+		.find(query)
+		.toArray(function (err, result) {
+			if (err) {
+				res.status(400).send("Error fetching listings!");
+			} else if (result.length == 0) {
+				res.status(400).send(`No locations found`);
 			} else {
 				res.json(result);
 			}
