@@ -10,8 +10,7 @@ app.use(express.json());
 app.use(require("./routes/locations"));
 app.use(require("./routes/user"));
 app.use(require("./routes/tags"));
-
-
+app.use(require("./routes/yelp"));
 
 //routes
 app.get("/user", (req, res) => {
