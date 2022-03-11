@@ -9,6 +9,7 @@ const db = require("./db/mongoConn");
 app.use(express.json());
 app.use(require("./routes/locations"));
 app.use(require("./routes/user"));
+app.use(require("./routes/tags"));
 
 
 
@@ -33,19 +34,9 @@ app.post("/user/:id", (req, res) => {
 	});
 });
 
-//for user.js
-app.get('/auth', function(req, res){
-	res.send({response:app.get('response')});
-  });
-  
-app.get('/signedup', function(req, res){
-	res.send({response:app.get('su')});
-  });
-
 db.connectToServer( (err) => {
 	app.listen(PORT, async () => {
 		console.log(`Server is running on ${PORT}`);
 	});
 
 });
-
