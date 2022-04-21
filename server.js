@@ -11,8 +11,6 @@ app.use(require("./routes/locations"));
 app.use(require("./routes/user"));
 app.use(require("./routes/tags"));
 
-
-
 //routes
 app.get("/user", (req, res) => {
 	res.status(200).send({

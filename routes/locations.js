@@ -125,4 +125,37 @@ locationRoutes.route("/query").get(function (req, res) {
 		});
 });
 
+locationRoutes.route("/distance").get(function(req, res){
+	const dbConnect = dbo.getDb(); 
+	const collection = dbConnect.db('businesses').collection('yelp_test');
+	collection.createIndex( { coordinates : "2dsphere" } );
+
+	const point = req.body.coordinates;
+	const radius_in_miles = req.body.radius; 
+	const radius = 1609.34*radius_in_miles;
+
+	collection
+		.find(
+			{ coordinates:{
+				$near:
+				{
+					$geometry: {type: "Point", coordinates: point},
+					$maxDistance: radius
+				}
+			}}
+		).toArray(function (err, result) {
+			if (err) {
+				console.log(err);
+				res.status(400).send("Error fetching listings!");
+			} else if (result.length == 0) {
+				res.status(400).send(`No locations with specified coordinates and radius`);
+			} else {
+				res.json(result);
+			}
+		});
+
+
+
+} );
+
 module.exports = locationRoutes;
