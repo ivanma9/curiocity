@@ -1,5 +1,6 @@
 from operator import is_
 from re import search
+from matplotlib.pyplot import get
 import requests
 import json
 import os
@@ -18,7 +19,7 @@ HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 
 # Server endpoint
-HEROKU_SERVER = 'http://localhost:8080/insertbusinesses'#'https://enigmatic-brook-87129.herokuapp.com'
+HEROKU_SERVER = 'https://enigmatic-brook-87129.herokuapp.com/insertbusinesses'
 
 # Define my parameters of the search
 LA_COUNTY_CITIES = [
@@ -140,8 +141,7 @@ def getTagsFromAliases(aliases):
                 tags_set.add(parent_tag_title)
 
         # Add title to tags_list
-        if alias in titles:
-            tags_set.add(title)
+        tags_set.add(title)
 
     # return list of the tags set
     return list(tags_set)
@@ -190,7 +190,7 @@ def construct_business(search_response_body):
             is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
-            curiocity_business_json = json.dumps({
+            curiocity_business_json = {
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
@@ -201,7 +201,7 @@ def construct_business(search_response_body):
                 "special_hours": special_hours,
                 "is_closed": is_closed,
                 "tags": tags_list
-            })
+            }
 
             # Add json to business array
             curiocity_businesses.append(curiocity_business_json)
@@ -232,13 +232,9 @@ def getYelpAPI_LA():
         "res": updated_businesses_array
     }
     return json.loads(json.dumps(updated_businesses_json))
-
-# Open categories
-
-# Find parent categories for 
-# ONE business
-# aliases [(alias, title)]
-
-
-
+# print(getYelpAPI_LA())
+f = open("sampl.txt", "w")
+f.write(json.dumps(getYelpAPI_LA()))
+f.close()
 # f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+

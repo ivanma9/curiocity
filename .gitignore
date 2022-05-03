@@ -2,3 +2,4 @@
 *.DS_STORE
 *credentials.json
 *.env
+*__pycache__
