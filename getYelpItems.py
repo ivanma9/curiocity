@@ -190,13 +190,18 @@ def construct_business(search_response_body):
             is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
+<<<<<<< HEAD
             curiocity_business_json = {
+=======
+            coordinates = dict(reversed(list(business.get("coordinates").items())))
+            curiocity_business_json = json.dumps({
+>>>>>>> yelp-cron
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
                 "photos": yelp_photos,
                 "location": business.get("location"),
-                "coordinates": business.get("coordinates"),
+                "coordinates": coordinates,
                 "hours": hours,
                 "special_hours": special_hours,
                 "is_closed": is_closed,
@@ -233,8 +238,5 @@ def getYelpAPI_LA():
     }
     return json.loads(json.dumps(updated_businesses_json))
 # print(getYelpAPI_LA())
-f = open("sampl.txt", "w")
-f.write(json.dumps(getYelpAPI_LA()))
-f.close()
-# f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
 
+f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
