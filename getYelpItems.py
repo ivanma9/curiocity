@@ -20,7 +20,7 @@ HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 # Server endpoint
 HEROKU_SERVER = 'https://enigmatic-brook-87129.herokuapp.com/insertbusinesses'
-# HEROKU_SERVER_f = 'https://localhost:8080/insertbusinesses'
+# HEROKU_SERVER_local = 'https://localhost:8080/insertbusinesses'
 
 
 # Define my parameters of the search
@@ -193,12 +193,20 @@ def construct_business(search_response_body):
 
             # TODO: new JSON body of location/business
             coordinates = dict(reversed(list(business.get("coordinates").items())))
+            location_yelp = business.get("location")
+            location_object = {
+                location_yelp.get("address1"),
+                location_yelp.get("city"),
+                location_yelp.get("zip_code"),
+                location_yelp.get("state"),
+                location_yelp.get("country"),   
+            }
             curiocity_business_json = json.dumps({
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
                 "photos": yelp_photos,
-                "location": business.get("location"),
+                "location": hours, #error w this object "location_object"
                 "coordinates": coordinates,
                 "hours": hours,
                 "special_hours": special_hours,
@@ -236,19 +244,20 @@ def getYelpAPI_LA():
     }
     return json.loads(json.dumps(updated_businesses_json))
 # print(getYelpAPI_LA())
+f = open("sampl.txt", "w")
+f.write(str(getYelpAPI_LA()))
+f.close()
 
 
-# f = requests.get(HEROKU_SERVER_f)
-# print(f)
-try:
-    f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
-except requests.exceptions.Timeout:
-    # Maybe set up for a retry, or continue in a retry loop
-    print("Timeout")
-except requests.exceptions.TooManyRedirects:
-    # Tell the user their URL was bad and try a different one
-    print("Bad url")
-except requests.exceptions.RequestException as e:
-    # catastrophic error. bail.
-    print("Mega error")
-    raise SystemExit(e)
+# try:
+#     f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+# except requests.exceptions.Timeout:
+#     # Maybe set up for a retry, or continue in a retry loop
+#     print("Timeout")
+# except requests.exceptions.TooManyRedirects:
+#     # Tell the user their URL was bad and try a different one
+#     print("Bad url")
+# except requests.exceptions.RequestException as e:
+#     # catastrophic error. bail.
+#     print("Mega error")
+#     raise SystemExit(e)
