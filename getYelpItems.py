@@ -20,6 +20,8 @@ HEADERS = {'Authorization': 'Bearer %s' % API_KEY}
 
 # Server endpoint
 HEROKU_SERVER = 'https://enigmatic-brook-87129.herokuapp.com/insertbusinesses'
+# HEROKU_SERVER_f = 'https://localhost:8080/insertbusinesses'
+
 
 # Define my parameters of the search
 LA_COUNTY_CITIES = [
@@ -190,12 +192,8 @@ def construct_business(search_response_body):
             is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
-<<<<<<< HEAD
-            curiocity_business_json = {
-=======
             coordinates = dict(reversed(list(business.get("coordinates").items())))
             curiocity_business_json = json.dumps({
->>>>>>> yelp-cron
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
@@ -206,7 +204,7 @@ def construct_business(search_response_body):
                 "special_hours": special_hours,
                 "is_closed": is_closed,
                 "tags": tags_list
-            }
+            })
 
             # Add json to business array
             curiocity_businesses.append(curiocity_business_json)
@@ -239,4 +237,18 @@ def getYelpAPI_LA():
     return json.loads(json.dumps(updated_businesses_json))
 # print(getYelpAPI_LA())
 
-f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+
+# f = requests.get(HEROKU_SERVER_f)
+# print(f)
+try:
+    f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+except requests.exceptions.Timeout:
+    # Maybe set up for a retry, or continue in a retry loop
+    print("Timeout")
+except requests.exceptions.TooManyRedirects:
+    # Tell the user their URL was bad and try a different one
+    print("Bad url")
+except requests.exceptions.RequestException as e:
+    # catastrophic error. bail.
+    print("Mega error")
+    raise SystemExit(e)
