@@ -191,8 +191,7 @@ def construct_business(search_response_body):
             is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
-            coordinates = dict(reversed(list(business.get('coordinates').items())))
-           
+            coordinates = dict(reversed(list(business.get("coordinates").items())))
             curiocity_business_json = json.dumps({
                 "name": business.get("name"),
                 "phone": business.get("phone"),
@@ -236,9 +235,6 @@ def getYelpAPI_LA():
     }
     return json.loads(json.dumps(updated_businesses_json))
 # print(getYelpAPI_LA())
-f = open("sampl.txt", "w")
-
-f.close()
 # Open categories
 
 # Find parent categories for 
@@ -254,4 +250,4 @@ reqbody['res'] = fixed_businesses
 
 print(len(fixed_businesses))
 
-#g = requests.post(HEROKU_SERVER, json=reqbody)
+f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
