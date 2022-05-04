@@ -115,8 +115,7 @@ LA_COUNTY_CITIES = [
 PARAMETERS_LOS_ANGELES = []
 
 # fills out the parameters object array for LA county
-# TODO: change [1:2] to all cities eventually
-for elem in LA_COUNTY_CITIES[1:2]:
+for elem in LA_COUNTY_CITIES:
     PARAMETERS_LOS_ANGELES.append({
         'location': elem,
         'radius': 40000
