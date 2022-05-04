@@ -4,6 +4,7 @@ import requests
 import json
 import os
 from parse import titles
+from collections import OrderedDict
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -190,19 +191,21 @@ def construct_business(search_response_body):
             is_closed = details_response.get("is_closed")
 
             # TODO: new JSON body of location/business
+            coordinates = dict(reversed(list(business.get('coordinates').items())))
+           
             curiocity_business_json = json.dumps({
                 "name": business.get("name"),
                 "phone": business.get("phone"),
                 "price": business.get("price"),
                 "photos": yelp_photos,
                 "location": business.get("location"),
-                "coordinates": business.get("coordinates"),
+                "coordinates": coordinates,
                 "hours": hours,
                 "special_hours": special_hours,
                 "is_closed": is_closed,
                 "tags": tags_list
             })
-
+            
             # Add json to business array
             curiocity_businesses.append(curiocity_business_json)
 
@@ -232,13 +235,23 @@ def getYelpAPI_LA():
         "res": updated_businesses_array
     }
     return json.loads(json.dumps(updated_businesses_json))
+# print(getYelpAPI_LA())
+f = open("sampl.txt", "w")
 
+f.close()
 # Open categories
 
 # Find parent categories for 
 # ONE business
 # aliases [(alias, title)]
+businesses = getYelpAPI_LA()['res']
+fixed_businesses = []
+for businesses in businesses:
+    fixed_businesses.append(json.loads(businesses))
 
+reqbody = {}
+reqbody['res'] = fixed_businesses
 
+print(len(fixed_businesses))
 
-# f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+#g = requests.post(HEROKU_SERVER, json=reqbody)
