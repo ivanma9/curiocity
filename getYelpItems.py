@@ -250,4 +250,4 @@ reqbody['res'] = fixed_businesses
 
 print(len(fixed_businesses))
 
-f = requests.post(HEROKU_SERVER, json=getYelpAPI_LA())
+f = requests.post(HEROKU_SERVER, json=reqbody)
