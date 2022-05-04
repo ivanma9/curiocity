@@ -31,19 +31,17 @@ yelpRoutes.route("/insertbusinesses").post(function (req, res) {
 	const resFromScraper = req.body['res'];
 	var business_count = resFromScraper.length;
 
-    res.send(resFromScraper);
-
 	for(var i =0; i<business_count; ++i){
 		let business = resFromScraper[i];
-		console.log(business);
+        console.log(business)
 		collection.updateOne(business, {$set : business}, {upsert:true})
 		.then(() =>{
 			console.log('inserted succesfully')
 			res.status(200).send();
 		})
 		.catch((err) => {
-			
-			res.send('unsucessful');
+            console.log(err)
+            console.log("UNSUCCESSFUL")
 			res.status(400).send();
 		})
 	}
