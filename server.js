@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const db = require("./db/mongoConn");
 
-app.use(express.json());
+app.use(express.json({ limit: '50MB' }));
 app.use(require("./routes/locations"));
 app.use(require("./routes/user"));
 app.use(require("./routes/yelp"));
