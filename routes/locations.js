@@ -1,5 +1,9 @@
+//import bus_stops_json from bus.py
 const express = require("express");
 const req = require("express/lib/request");
+const { get } = require("mongoose");
+
+const {busjsonstr} = require('../buslist.js');
 
 // locationRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -157,5 +161,30 @@ locationRoutes.route("/distance").get(function(req, res){
 
 
 } );
+
+
+//insert bus stop locations into db
+locationRoutes.route("/insertbus").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	const busstops = dbConnect.db("transportation").collection("bus_stops");
+	console.log("hello")
+	console.log(busjsonstr);
+	var busjson = JSON.parse(busjsonstr);
+	for(i = 0; i < busjson.length; i++)
+	{
+		//console.log(busjson[i]);
+		//console.log('\n');
+		try{
+			busstops.insertOne(busjson[i]);
+			console.log("yay");
+		} catch (e) {
+			print(e);
+		}
+	}
+	busstops.insertOne({type: req.body.type,
+		coordinates: req.body.coordinates});
+	res.json("bus stop inserted");
+		
+});
 
 module.exports = locationRoutes;
