@@ -109,3 +109,19 @@ The goal is to be able to take every single location or business entry and add t
 .env variables
 make sure to put `require('dotenv').config();` to use env variables.
 
+### Curiocity API
+
+| Verb   | Route                 | Description                                                         |
+| ------ | --------------------- | ------------------------------------------------------------------- |
+| POST   | `/insertbusinesses`                 | Creates an account for the user and returns the user's data         |
+| GET    | `/me`                 | Login given user cookies and verifies the data aligns w/ the server |
+| DELETE | `/me`                 | Removes a user's info from the database                             |
+| ------ | --------------------- | ------------------------------------------------------------------- |
+| POST   | `/lobby`              | Creates a new lobby and returns the lobby id w/ lobby data          |
+| GET    | `/lobby`              | Returns the lobbies a user is managing and participating in         |
+| ------ | --------------------- | ------------------------------------------------------------------- |
+| POST   | `/lobby/:id`          | Join a lobby                                                        |
+| PATCH  | `/lobby/:id`          | Update a lobbies information                                        |
+| GET    | `/lobby/:id`          | Get lobby specific info                                             |
+| DELETE | `/lobby/:id`          | Delete a lobby                                                      |
+| DELETE | `/lobby/:id/user/:id` | Delete a user from a lobby                                          |
