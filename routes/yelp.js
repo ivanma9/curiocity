@@ -13,7 +13,7 @@ const yelp_API_KEY = process.env.YELP_API_KEY;
 // This section will help you get a list of all the locations.
 yelpRoutes.route("/business").get(function (req, res) {
 	const dbConnect = dbo.getDb();
-	const collection = dbConnect.db("businesses").collection("business");
+	const collection = dbConnect.db("businesses").collection("locations");
 
 	collection.find({}).toArray(function (err, result) {
 		if (err) {
