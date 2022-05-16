@@ -117,14 +117,15 @@ make sure to put `require('dotenv').config();` to use env variables.
 | POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
 | POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
 | `tags.js` |  |  |
-| POST   | `/insert/tag`              | Insert a custom tag into the database         | Name, Category
-| GET    | `/tags`              | Returns complete list of tags or optionally specify a category to return tags within that category        | Cateogry (optional)
+| POST   | `/lobby`              | Creates a new lobby and returns the lobby id w/ lobby data          |
+| GET    | `/lobby`              | Returns the lobbies a user is managing and participating in         |
 | `locations.js` |  |  |
-| POST   | `/lobby/:id`          | Join a lobby                                                        |
-| PATCH  | `/lobby/:id`          | Update a lobbies information                                        |
-| GET    | `/lobby/:id`          | Get lobby specific info                                             |
-| DELETE | `/lobby/:id`          | Delete a lobby                                                      |
-| DELETE | `/lobby/:id/user/:id` | Delete a user from a lobby                                          |
+| GET   | `/location`            | Fetch a location by its name                                        | Location name |
+| POST  | `/insert`              | Insert a location into the database                                 | Location name, Tags, City name |
+| GET    | `/update`             | Edit a location's city name or insert tags                          | Location name, Tags, City name |
+| GET | `/query`                 | Fetch a location through any arbitrary parameters                   | Any |
+| GET | `/distance` | Find all locations within a certain radius of some coordinates                   | Coordinates, Radius |
+| GET | `/walking`  | Find all locations within a walkable distance from some coordinates              | Coordinates |
 
 
 
