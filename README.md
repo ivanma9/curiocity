@@ -117,8 +117,8 @@ make sure to put `require('dotenv').config();` to use env variables.
 | POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
 | POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
 | `tags.js` |  |  |
-| POST   | `/lobby`              | Creates a new lobby and returns the lobby id w/ lobby data          |
-| GET    | `/lobby`              | Returns the lobbies a user is managing and participating in         |
+| POST   | `/insert/tag`         | Insert a custom tag into the database                               | Name, Category |
+| GET    | `/tags`               | Returns complete list of tags or optionally specify a category to return tags within that category        | Category |
 | `locations.js` |  |  |
 | GET   | `/location`            | Fetch a location by its name                                        | Location name |
 | POST  | `/insert`              | Insert a location into the database                                 | Location name, Tags, City name |
