@@ -113,12 +113,13 @@ make sure to put `require('dotenv').config();` to use env variables.
 
 | Verb   | Route                 | Description                                                         | Parameters |
 | ------ | --------------------- | ------------------------------------------------------------------- | ---------- |
+| `locations.js` |  |  |
 | POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
 | POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
-| ------ | --------------------- | ------------------------------------------------------------------- |
+| `tags.js` |  |  |
 | POST   | `/lobby`              | Creates a new lobby and returns the lobby id w/ lobby data          |
 | GET    | `/lobby`              | Returns the lobbies a user is managing and participating in         |
-| ------ | --------------------- | ------------------------------------------------------------------- |
+| `locations.js` |  |  |
 | POST   | `/lobby/:id`          | Join a lobby                                                        |
 | PATCH  | `/lobby/:id`          | Update a lobbies information                                        |
 | GET    | `/lobby/:id`          | Get lobby specific info                                             |
