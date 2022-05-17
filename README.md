@@ -113,7 +113,7 @@ make sure to put `require('dotenv').config();` to use env variables.
 
 | Verb   | Route                 | Description                                                         | Parameters |
 | ------ | --------------------- | ------------------------------------------------------------------- | ---------- |
-| `locations.js` |  |  |
+| `user.js` |  |  |
 | POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
 | POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
 | `tags.js` |  |  |
