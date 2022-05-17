@@ -113,13 +113,13 @@ make sure to put `require('dotenv').config();` to use env variables.
 
 | Verb   | Route                 | Description                                                         | Parameters |
 | ------ | --------------------- | ------------------------------------------------------------------- | ---------- |
-| `user.js` |  |  |
+| `user.js`     |
 | POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
 | POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
-| `tags.js` |  |  |
+| `tags.js`     |
 | POST   | `/insert/tag`         | Insert a custom tag into the database                               | Name, Category |
 | GET    | `/tags`               | Returns complete list of tags or optionally specify a category to return tags within that category        | Category |
-| `locations.js` |  |  |
+| `locations.js`     |
 | GET   | `/location`            | Fetch a location by its name                                        | Location name |
 | POST  | `/insert`              | Insert a location into the database                                 | Location name, Tags, City name |
 | GET    | `/update`             | Edit a location's city name or insert tags                          | Location name, Tags, City name |
