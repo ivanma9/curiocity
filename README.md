@@ -123,13 +123,13 @@ make sure to put `require('dotenv').config();` to use env variables.
 | GET   | `/location`            | Fetch a location by its name                                        | Location name |
 | POST  | `/insert`              | Insert a location into the database                                 | Location name, Tags, City name |
 | GET    | `/update`             | Edit a location's city name or insert tags                          | Location name, Tags, City name |
-| GET | `/query`                 | Fetch a location through any arbitrary parameters                   | Any |
+| GET | `/query`                 | Fetch a list of locations through any arbitrary parameters          | List of Preferences |
 | GET | `/distance` | Find all locations within a certain radius of some coordinates                   | Coordinates, Radius |
-| GET | `/walking`  | Find all locations within a walkable distance from some coordinates              | Coordinates |
+| GET | `/walking`  | Find all locations within a walkable distance from some coordinates              | Coordinates, Time |
 
 
 
-### Sample Business Body
+### Sample Location Body
 ```
 {
         "_id": "6272329e407e013fb454bbf8",
