@@ -335,12 +335,42 @@ function parseBudget(budget, distance, coordinates){
 	})
 }
 
+function parseTags(tags, distance, coordinates){
+	return new Promise((resolve) =>{
+		const dbConnect = dbo.getDb();
+		const businesses = dbConnect.db('businesses').collection('locations');
+
+		businesses
+		.find(
+			{ coordinates:{
+				$near:
+				{
+					$geometry: {type: "Point", coordinates: coordinates},
+					$maxDistance: distance
+				}
+			}},
+			{tags: {$all: tags}}
+		).toArray(function (err, result) {
+			if (err) {
+				console.log(err);
+				console.log("Error fetching listings!");
+			} else if (result.length == 0) {
+				console.log(`No locations with specified coordinates and radius`);
+			} else {
+				resolve(result);
+			}
+		});
+	})
+}
+
 locationRoutes.route("/queryAll").get(async function (req, res) {
     const dbConnect = dbo.getDb();
     const businesses = dbConnect.db('businesses').collection('locations');
-	var list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates)));
+	var transport_list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates)));
+	var tags_list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseTags(req.body.tags, req.body.distance, req.body.coordinates)));
 	//console.log(typeof list);
-	console.log(list);
+	// console.log(transport_list);
+	console.log(tags_list);
 
 });
 
