@@ -198,6 +198,35 @@ locationRoutes.route("/walking").get(function(req, res){
 		});
 } );
 
+
+function logical_and(list1, list2){
+
+	var combined_list = [];
+	for(var i =0 ; i<list1.length(); ++i){
+		for(var j =0; j<list2.length(); ++j){
+			if(list1[i].name==list2[j].name){
+				combined_list.append(list1[i]);
+			}
+		}
+	}
+	return combined_list; 
+}
+
+function clean_list(list){
+
+	let uniqueNames = []
+	let uniqueList = [];
+	list.forEach((c) => {
+		if (!uniqueNames.includes(c.name)) {
+			uniqueNames.push(c.name)
+			uniqueList.push(c);
+		}
+	});
+
+	return uniqueList;
+
+}
+
 locationRoutes.route("/checkforbus").get(function (req, res) {
     const dbConnect = dbo.getDb();
     const businesses = dbConnect.db('businesses').collection('locations');
@@ -213,87 +242,87 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 });
 
 //this is the function that will calculate a list of places based on a given transportation
-function parseTransport(transportation, distance, time, coordinates){
-	const dbConnect = dbo.getDb();
-    const businesses = dbConnect.db('businesses').collection('locations');
-	businesses.createIndex( { coordinates : "2dsphere" } );
-	var list;
-	const point = coordinates;
-
-	console.log("Parse transport");
-
-	if (transportation == 'Walking'){
+ async function parseTransport(transportation, distance, time, coordinates){
+	 return new Promise(resolve =>{
+		const dbConnect = dbo.getDb();
+		const businesses = dbConnect.db('businesses').collection('locations');
+		businesses.createIndex( { coordinates : "2dsphere" } );
+		var list;
+		const point = coordinates;
+	
+		console.log("Parse transport");
+	
+		if (transportation == 'Walking'){
+			
+			//const radius_in_miles = req.body.radius; 
+			const new_time = time * 3600; // hours to seconds
+			const walk_speed = 1.5; // average walking speed of 1.5 meters per second
+			const radius = new_time * walk_speed;
 		
-		//const radius_in_miles = req.body.radius; 
-		const new_time = time * 3600; // hours to seconds
-		const walk_speed = 1.5; // average walking speed of 1.5 meters per second
-		const radius = new_time * walk_speed;
+	
+			  businesses
+				.find(
+					{ coordinates:{
+						$near:
+						{
+							$geometry: {type: "Point", coordinates: point},
+							$maxDistance: radius
+						}}
+					}
+				).toArray(function (err, result) {
+					if (err) {
+						console.log(err);
+						console.log("Error fetching listings!");
+					} else if (result.length == 0) {
+						console.log(`No locations with specified coordinates and radius`);
+					} else {
+						console.log('success');
+						resolve(result);
+					}
+				});
+		} else if (transportation == 'Bus') {
+			// insert elaine's bus function here
+		} else {
+			const radius_in_miles = distance; 
+			const radius = 1609.34*radius_in_miles;
+	
+	
+		
+				businesses
+				.find(
+					{ coordinates:{
+						$near:
+						{
+							$geometry: {type: "Point", coordinates: point},
+							$maxDistance: radius
+						}
+					}}
+				).toArray(function (err, result) {
+					if (err) {
+						console.log(err);
+						console.log("Error fetching listings!");
+					} else if (result.length == 0) {
+						console.log(`No locations with specified coordinates and radius`);
+						console.log(result);
+					} else {
+						console.log("success");
+						resolve(result);
+					}
+				});
+			 }
+		})
+	 }
 	
 
-		businesses
-			.find(
-				{ coordinates:{
-					$near:
-					{
-						$geometry: {type: "Point", coordinates: point},
-						$maxDistance: radius
-					}}
-				}
-			).toArray(function (err, result) {
-				if (err) {
-					console.log(err);
-					console.log("Error fetching listings!");
-				} else if (result.length == 0) {
-					console.log(`No locations with specified coordinates and radius`);
-				} else {
-					list = result;
-				}
-			});
-	} else if (transportation == 'Bus') {
-		// insert elaine's bus function here
-	} else {
-		const radius_in_miles = distance; 
-		const radius = 1609.34*radius_in_miles;
-
-
-		list = businesses
-			.find(
-				{ coordinates:{
-					$near:
-					{
-						$geometry: {type: "Point", coordinates: point},
-						$maxDistance: radius
-					}
-				}}
-			).toArray(function (err, result) {
-				if (err) {
-					console.log(err);
-					console.log("Error fetching listings!");
-				} else if (result.length == 0) {
-					console.log(`No locations with specified coordinates and radius`);
-					console.log(result);
-				} else {
-					console.log("success");
-					console.log(result);
-				}
-			});
-
-			console.log(list);
-	}
-
-	// console.log(typeof list);
-	// console.log(list);
-
-}
-
-locationRoutes.route("/queryAll").get(function (req, res) {
+locationRoutes.route("/queryAll").get(async function (req, res) {
     const dbConnect = dbo.getDb();
     const businesses = dbConnect.db('businesses').collection('locations');
-
-	parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates);
+	var list = clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates));
+	console.log(typeof list);
+	console.log(list);
    
 
-
 });
+
 
 module.exports = locationRoutes;
