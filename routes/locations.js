@@ -363,7 +363,7 @@ function parseTags(tags, distance, coordinates){
 
 locationRoutes.route("/queryAll").get(async function (req, res) {
 
-	const transport_list =clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates))
+	const transport_list = clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates))
 	const budget_list = clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates));
 	const tags_list = clean_list(await parseTags(req.body.tags, req.body.distance, req.body.coordinates));
 
@@ -387,11 +387,11 @@ locationRoutes.route("/queryAll").get(async function (req, res) {
 
 	console.log(master_list);
 
-	if(master_list.length>=10){
+	if(master_list.length != 0){
 		res.send(master_list.slice(0,10));
 	}
 	else{
-		res.status(404).send("Could not find 10 or more matches");
+		res.status(404).send("Could not find matches");
 	}
 });
 
