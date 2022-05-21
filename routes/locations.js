@@ -130,15 +130,13 @@ locationRoutes.route("/query").get(function (req, res) {
 //find all locations within a certain radius of a point
 locationRoutes.route("/distance").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
-	const collection = dbConnect.db('businesses').collection('yelp_test');
-	collection.createIndex( { coordinates : "2dsphere" } );
+	const collection = dbConnect.db('businesses').collection('locations');
 
 	const point = req.body.coordinates;
 	const radius_in_miles = req.body.radius; 
 	const radius = 1609.34*radius_in_miles;
 	
-	//trying to set result of query to a list
-	const list = collection
+	 collection
 		.find(
 			{ coordinates:{
 				$near:
@@ -155,13 +153,9 @@ locationRoutes.route("/distance").get(function(req, res){
 				res.status(400).send(`No locations with specified coordinates and radius`);
 			} else {
 				res.json(result);
-				return result;
+				 console.log(result);
 			}
 		});
-	
-		//trying to print but i think this is printing before the query finishes executing
-		//this is why the .toArray has a callback function so it will execute right after the query is done
-		console.log(list)
 } );
 
 
@@ -202,10 +196,10 @@ locationRoutes.route("/walking").get(function(req, res){
 function logical_and(list1, list2){
 
 	var combined_list = [];
-	for(var i =0 ; i<list1.length(); ++i){
-		for(var j =0; j<list2.length(); ++j){
+	for(var i =0 ; i<list1.length; ++i){
+		for(var j =0; j<list2.length; ++j){
 			if(list1[i].name==list2[j].name){
-				combined_list.append(list1[i]);
+				combined_list.push(list1[i]);
 			}
 		}
 	}
@@ -313,14 +307,40 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 		})
 	 }
 	
+function parseBudget(budget, distance, coordinates){
+	return new Promise((resolve) =>{
+		const dbConnect = dbo.getDb();
+		const businesses = dbConnect.db('businesses').collection('locations');
+
+		businesses
+		.find(
+			{ coordinates:{
+				$near:
+				{
+					$geometry: {type: "Point", coordinates: coordinates},
+					$maxDistance: distance
+				}
+			}},
+			{price:budget}
+		).toArray(function (err, result) {
+			if (err) {
+				console.log(err);
+				console.log("Error fetching listings!");
+			} else if (result.length == 0) {
+				console.log(`No locations with specified coordinates and radius`);
+			} else {
+				resolve(result);
+			}
+		});
+	})
+}
 
 locationRoutes.route("/queryAll").get(async function (req, res) {
     const dbConnect = dbo.getDb();
     const businesses = dbConnect.db('businesses').collection('locations');
-	var list = clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates));
-	console.log(typeof list);
+	var list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates)));
+	//console.log(typeof list);
 	console.log(list);
-   
 
 });
 
