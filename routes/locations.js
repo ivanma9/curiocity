@@ -279,9 +279,7 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 		} else {
 			const radius_in_miles = distance; 
 			const radius = 1609.34*radius_in_miles;
-	
-	
-		
+			
 				businesses
 				.find(
 					{ coordinates:{
@@ -364,14 +362,37 @@ function parseTags(tags, distance, coordinates){
 }
 
 locationRoutes.route("/queryAll").get(async function (req, res) {
-    const dbConnect = dbo.getDb();
-    const businesses = dbConnect.db('businesses').collection('locations');
-	var transport_list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates)));
-	var tags_list = logical_and(clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates)),clean_list(await parseTags(req.body.tags, req.body.distance, req.body.coordinates)));
-	//console.log(typeof list);
-	// console.log(transport_list);
-	console.log(tags_list);
 
+	const transport_list =clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates))
+	const budget_list = clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates));
+	const tags_list = clean_list(await parseTags(req.body.tags, req.body.distance, req.body.coordinates));
+
+	//FILTER THREE PREFERENCES
+	var master_list = clean_list(logical_and(logical_and(transport_list, budget_list), tags_list));
+
+	//FILTER TWO PREFERENCES
+	const transport_budget_list = clean_list(logical_and(transport_list, budget_list));
+	master_list = clean_list(master_list.concat(transport_budget_list));
+
+	const transport_tags_list = clean_list(logical_and(transport_list, tags_list));
+	master_list = clean_list(master_list.concat(transport_tags_list));
+
+	const budget_tags_list = clean_list(logical_and(budget_list, tags_list));
+	master_list = clean_list(master_list.concat(budget_tags_list));
+
+	//FILTER ONE PREFERENCE
+	master_list = clean_list(master_list.concat(transport_list));
+	master_list = clean_list(master_list.concat(tags_list));
+	master_list = clean_list(master_list.concat(budget_list));
+
+	console.log(master_list);
+
+	if(master_list.length>=10){
+		res.send(master_list.slice(0,10));
+	}
+	else{
+		res.status(404).send("Could not find 10 or more matches");
+	}
 });
 
 
