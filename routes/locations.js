@@ -1,9 +1,5 @@
-//import bus_stops_json from bus.py
 const express = require("express");
 const req = require("express/lib/request");
-const { get } = require("mongoose");
-
-const {busjsonstr} = require('../buslist.js');
 
 // locationRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -32,7 +28,7 @@ locationRoutes.route("/location").get(function (req, res) {
 });
 
 //insert location into db
-locationRoutes.route("insert").post(function (req, res) {
+locationRoutes.route("/insert").post(function (req, res) {
 	const dbConnect = dbo.getDb();
 
 	const location = {
@@ -109,6 +105,7 @@ locationRoutes.route("/matchtag").get(function (req, res) {
 		});
 });
 
+// fetch a business from some arbritrary parameter
 locationRoutes.route("/query").get(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("yelp_test");
@@ -129,6 +126,8 @@ locationRoutes.route("/query").get(function (req, res) {
 		});
 });
 
+
+//find all locations within a certain radius of a point
 locationRoutes.route("/distance").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
 	const collection = dbConnect.db('businesses').collection('yelp_test');
@@ -137,8 +136,9 @@ locationRoutes.route("/distance").get(function(req, res){
 	const point = req.body.coordinates;
 	const radius_in_miles = req.body.radius; 
 	const radius = 1609.34*radius_in_miles;
-
-	collection
+	
+	//trying to set result of query to a list
+	const list = collection
 		.find(
 			{ coordinates:{
 				$near:
@@ -155,9 +155,15 @@ locationRoutes.route("/distance").get(function(req, res){
 				res.status(400).send(`No locations with specified coordinates and radius`);
 			} else {
 				res.json(result);
+				return result;
 			}
 		});
+	
+		//trying to print but i think this is printing before the query finishes executing
+		//this is why the .toArray has a callback function so it will execute right after the query is done
+		console.log(list)
 } );
+
 
 locationRoutes.route("/walking").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
@@ -169,8 +175,6 @@ locationRoutes.route("/walking").get(function(req, res){
 	const time = req.body.time * 3600; // hours to seconds
 	const walk_speed = 1.5; // average walking speed of 1.5 meters per second
 	const radius = time * walk_speed;
-	console.log(time);
-	console.log(radius);
 	
 
 	collection
@@ -194,29 +198,102 @@ locationRoutes.route("/walking").get(function(req, res){
 		});
 } );
 
+locationRoutes.route("/checkforbus").get(function (req, res) {
+    const dbConnect = dbo.getDb();
+    const businesses = dbConnect.db('businesses').collection('locations');
+    businesses.find({"name": "Savoy Kitchen"}).project({"coordinates": 1}).toArray(function (err, result) {
+        if (err) {
+            res.status(400).send("Error fetching listings!");
+        }
+        else{
+            console.log(result);
+            res.json(result);
+        }
+    })
+});
 
-//insert bus stop locations into db
-locationRoutes.route("/insertbus").post(function (req, res) {
+//this is the function that will calculate a list of places based on a given transportation
+function parseTransport(transportation, distance, time, coordinates){
 	const dbConnect = dbo.getDb();
-	const busstops = dbConnect.db("transportation").collection("bus_stops");
-	console.log("hello")
-	console.log(busjsonstr);
-	var busjson = JSON.parse(busjsonstr);
-	for(i = 0; i < busjson.length; i++)
-	{
-		//console.log(busjson[i]);
-		//console.log('\n');
-		try{
-			busstops.insertOne(busjson[i]);
-			console.log("yay");
-		} catch (e) {
-			print(e);
-		}
-	}
-	busstops.insertOne({type: req.body.type,
-		coordinates: req.body.coordinates});
-	res.json("bus stop inserted");
+    const businesses = dbConnect.db('businesses').collection('locations');
+	businesses.createIndex( { coordinates : "2dsphere" } );
+	var list;
+	const point = coordinates;
+
+	console.log("Parse transport");
+
+	if (transportation == 'Walking'){
 		
+		//const radius_in_miles = req.body.radius; 
+		const new_time = time * 3600; // hours to seconds
+		const walk_speed = 1.5; // average walking speed of 1.5 meters per second
+		const radius = new_time * walk_speed;
+	
+
+		businesses
+			.find(
+				{ coordinates:{
+					$near:
+					{
+						$geometry: {type: "Point", coordinates: point},
+						$maxDistance: radius
+					}}
+				}
+			).toArray(function (err, result) {
+				if (err) {
+					console.log(err);
+					console.log("Error fetching listings!");
+				} else if (result.length == 0) {
+					console.log(`No locations with specified coordinates and radius`);
+				} else {
+					list = result;
+				}
+			});
+	} else if (transportation == 'Bus') {
+		// insert elaine's bus function here
+	} else {
+		const radius_in_miles = distance; 
+		const radius = 1609.34*radius_in_miles;
+
+
+		list = businesses
+			.find(
+				{ coordinates:{
+					$near:
+					{
+						$geometry: {type: "Point", coordinates: point},
+						$maxDistance: radius
+					}
+				}}
+			).toArray(function (err, result) {
+				if (err) {
+					console.log(err);
+					console.log("Error fetching listings!");
+				} else if (result.length == 0) {
+					console.log(`No locations with specified coordinates and radius`);
+					console.log(result);
+				} else {
+					console.log("success");
+					console.log(result);
+				}
+			});
+
+			console.log(list);
+	}
+
+	// console.log(typeof list);
+	// console.log(list);
+
+}
+
+locationRoutes.route("/queryAll").get(function (req, res) {
+    const dbConnect = dbo.getDb();
+    const businesses = dbConnect.db('businesses').collection('locations');
+
+	parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates);
+   
+
+
 });
 
 module.exports = locationRoutes;
