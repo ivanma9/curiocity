@@ -1,5 +1,6 @@
 const express = require("express");
 const req = require("express/lib/request");
+const res = require("express/lib/response");
 
 // locationRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -15,12 +16,12 @@ locationRoutes.route("/location").get(function (req, res) {
 	const collection = dbConnect.db("businesses").collection("locations");
 
 	collection
-		.find({name: req.body.name})
+		.find({name: req.query.name})
 		.toArray(function (err, result) {
 			if (err) {
 				res.status(400).send("Error fetching listings!");
 			} else if (result.length == 0) {
-				res.status(400).send(`No locations with name ${req.body.name}`);
+				res.status(400).send(`No locations with name ${req.query.name}`);
 			} else {
 				res.json(result);
 			}
@@ -93,12 +94,12 @@ locationRoutes.route("/matchtag").get(function (req, res) {
 	const collection = dbConnect.db("businesses").collection("locations");
 
 	collection
-		.find({tags: {$all: req.body.tags}})
+		.find({tags: {$all: req.query.tags}})
 		.toArray(function (err, result) {
 			if (err) {
 				res.status(400).send("Error fetching listings!");
 			} else if (result.length == 0) {
-				res.status(400).send(`No locations with tags: ${req.body.tags}`);
+				res.status(400).send(`No locations with tags: ${req.query.tags}`);
 			} else {
 				res.json(result);
 			}
@@ -110,7 +111,7 @@ locationRoutes.route("/query").get(function (req, res) {
 	const dbConnect = dbo.getDb();
 	const collection = dbConnect.db("businesses").collection("yelp_test");
 
-	const query = req.body;
+	const query = req.query;
 	console.log(query);
 
 	collection
@@ -132,17 +133,19 @@ locationRoutes.route("/distance").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
 	const collection = dbConnect.db('businesses').collection('locations');
 
-	const point = req.body.coordinates;
-	const radius_in_miles = req.body.radius;
+	const long = parseFloat(req.query.coordinates[0]);
+	const lat = parseFloat(req.query.coordinates[1]);  
+	const radius_in_miles = req.query.radius;
 	const radius = 1609.34*radius_in_miles;
+
 	
 	 collection
 		.find(
 			{ coordinates:{
 				$near:
 				{
-					$geometry: {type: "Point", coordinates: point},
-					$maxDistance: radius
+					$geometry: {type: "Point", coordinates: [long, lat]},
+					$maxDistance: parseFloat(radius)
 				}
 			}}
 		).toArray(function (err, result) {
@@ -164,9 +167,10 @@ locationRoutes.route("/walking").get(function(req, res){
 	const collection = dbConnect.db('businesses').collection('yelp_test');
 	collection.createIndex( { coordinates : "2dsphere" } );
 
-	const point = req.body.coordinates;
-	//const radius_in_miles = req.body.radius; 
-	const time = req.body.time * 3600; // hours to seconds
+	const long = parseFloat(req.query.coordinates[0]);
+	const lat = parseFloat(req.query.coordinates[1]); 
+	//const radius_in_miles = req.query.radius; 
+	const time = req.query.time * 3600; // hours to seconds
 	const walk_speed = 1.5; // average walking speed of 1.5 meters per second
 	const radius = time * walk_speed;
 	
@@ -176,8 +180,8 @@ locationRoutes.route("/walking").get(function(req, res){
 			{ coordinates:{
 				$near:
 				{
-					$geometry: {type: "Point", coordinates: point},
-					$maxDistance: radius
+					$geometry: {type: "Point", coordinates: [long, lat]},
+					$maxDistance: parseFloat(radius)
 				}
 			}}
 		).toArray(function (err, result) {
@@ -194,7 +198,15 @@ locationRoutes.route("/walking").get(function(req, res){
 
 
 function logical_and(list1, list2){
-	return list1.filter((value) => list2.includes(value));
+	var combined_list = [];
+	for(var i =0 ; i<list1.length; ++i){
+		for(var j =0; j<list2.length; ++j){
+			if(list1[i].name==list2[j].name){
+				combined_list.push(list1[i]);
+			}
+		}
+	}
+	return combined_list; 
 }
 
 // 
@@ -237,19 +249,19 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 
 //this is the function that will calculate a list of places based on a given transportation
  async function parseTransport(transportation, distance, time, coordinates){
-	 return new Promise(resolve =>{
+	 return new Promise((resolve, reject) =>{
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
 		businesses.createIndex( { coordinates : "2dsphere" } );
-		var list;
-		const point = coordinates;
+		const long = parseFloat(coordinates[0]);
+		const lat = parseFloat(coordinates[1]); 
 	
 		console.log("Parse transport");
 	
 		if (transportation == 'Walking'){
 			
-			//const radius_in_miles = req.body.radius; 
-			const new_time = time * 3600; // hours to seconds
+			//const radius_in_miles = req.query.radius; 
+			const new_time = parseFloat(time) * 3600; // hours to seconds
 			const walk_speed = 1.5; // average walking speed of 1.5 meters per second
 			const radius = new_time * walk_speed;
 		
@@ -259,16 +271,18 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 					{ coordinates:{
 						$near:
 						{
-							$geometry: {type: "Point", coordinates: point},
-							$maxDistance: radius
+							$geometry: {type: "Point", coordinates: [long, lat]},
+							$maxDistance: parseFloat(radius)
 						}}
 					}
 				).toArray(function (err, result) {
 					if (err) {
 						console.log(err);
 						console.log("Error fetching listings!");
+						reject(new Error('Error')); 
 					} else if (result.length == 0) {
 						console.log(`No locations with specified coordinates and radius`);
+						resolve(result); 
 					} else {
 						console.log('success');
 						resolve(result);
@@ -277,7 +291,7 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 		} else if (transportation == 'Bus') {
 			// insert elaine's bus function here
 		} else {
-			const radius_in_miles = distance; 
+			const radius_in_miles = parseFloat(distance); 
 			const radius = 1609.34*radius_in_miles;
 			
 				businesses
@@ -285,7 +299,7 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 					{ coordinates:{
 						$near:
 						{
-							$geometry: {type: "Point", coordinates: point},
+							$geometry: {type: "Point", coordinates: [long, lat]},
 							$maxDistance: radius
 						}
 					}}
@@ -293,6 +307,7 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 					if (err) {
 						console.log(err);
 						console.log("Error fetching listings!");
+						reject(new Error('Error')); 
 					} else if (result.length == 0) {
 						console.log(`No locations with specified coordinates and radius`);
 						resolve(result);
@@ -306,24 +321,30 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 	 }
 	
 function parseBudget(budget, distance, coordinates){
-	return new Promise((resolve) =>{
+	return new Promise((resolve, reject) =>{
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
-
+		const long = parseFloat(coordinates[0]);
+		const lat = parseFloat(coordinates[1]); 
+		const radius_miles = parseFloat(distance);
+		const radius = radius_miles*1609; 
+		console.log(budget); 
 		businesses
 		.find(
+			
 			{ coordinates:{
 				$near:
 				{
-					$geometry: {type: "Point", coordinates: coordinates},
-					$maxDistance: distance
+					$geometry: {type: "Point", coordinates: [long, lat]},
+					$maxDistance: radius
 				}
-			}},
-			{price:budget}
+			},
+			price:budget}
 		).toArray(function (err, result) {
 			if (err) {
 				console.log(err);
 				console.log("Error fetching listings!");
+				reject(new Error('Error')); 
 			} else if (result.length == 0) {
 				console.log(`No locations with specified coordinates and radius`);
 				resolve(result);
@@ -336,24 +357,30 @@ function parseBudget(budget, distance, coordinates){
 }
 
 function parseTags(tags, distance, coordinates){
-	return new Promise((resolve) =>{
+	return new Promise((resolve, reject) =>{
+
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
+		const long = parseFloat(coordinates[0]);
+		const lat = parseFloat(coordinates[1]); 
+		const radius_miles = parseFloat(distance);
+		const radius = radius_miles*1609; 
 
 		businesses
 		.find(
 			{ coordinates:{
 				$near:
 				{
-					$geometry: {type: "Point", coordinates: coordinates},
-					$maxDistance: distance
+					$geometry: {type: "Point", coordinates: [long, lat]},
+					$maxDistance: radius
 				}
-			}},
-			{tags: {$all: tags}}
+			},
+			tags: {$all: tags}}
 		).toArray(function (err, result) {
 			if (err) {
 				console.log(err);
 				console.log("Error fetching listings!");
+				reject(new Error('Error')); 
 			} else if (result.length == 0) {
 				console.log(`No locations with specified coordinates and radius`);
 				resolve(result);
@@ -367,9 +394,21 @@ function parseTags(tags, distance, coordinates){
 
 locationRoutes.route("/queryAll").get(async function (req, res) {
 
-	const transport_list = clean_list(await parseTransport(req.body.transportation, req.body.distance, req.body.time, req.body.coordinates))
-	const budget_list = clean_list(await parseBudget(req.body.budget, req.body.distance, req.body.coordinates));
-	const tags_list = clean_list(await parseTags(req.body.tags, req.body.distance, req.body.coordinates));
+	const transport_list = clean_list(await parseTransport(req.query.transportation, req.query.radius, req.query.time, req.query.coordinates)
+	.catch(err=>{
+		res.status(400).send("Error when querying transport");
+	})
+	)
+	const budget_list = clean_list(await parseBudget(req.query.budget, req.query.radius, req.query.coordinates)
+	.catch(err=>{
+		res.status(400).send("Error when querying budget");
+	})
+	);
+	const tags_list = clean_list(await parseTags(req.query.tags, req.query.radius, req.query.coordinates)
+	.catch(err=>{
+		res.status(400).send("Error when querying tags");
+	})
+	);
 
 	//FILTER THREE PREFERENCES
 	var master_list = clean_list(logical_and(logical_and(transport_list, budget_list), tags_list));
@@ -383,13 +422,13 @@ locationRoutes.route("/queryAll").get(async function (req, res) {
 
 	const budget_tags_list = clean_list(logical_and(budget_list, tags_list));
 	master_list = clean_list(master_list.concat(budget_tags_list));
-
+	
 	//FILTER ONE PREFERENCE
 	master_list = clean_list(master_list.concat(transport_list));
 	master_list = clean_list(master_list.concat(tags_list));
 	master_list = clean_list(master_list.concat(budget_list));
 
-	// console.log(master_list);
+ 	console.log(master_list.slice(0,10));
 
 	if(master_list.length != 0){
 		res.send(master_list.slice(0,10));
