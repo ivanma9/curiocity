@@ -133,7 +133,7 @@ locationRoutes.route("/distance").get(function(req, res){
 	const collection = dbConnect.db('businesses').collection('locations');
 
 	const point = req.body.coordinates;
-	const radius_in_miles = req.body.radius; 
+	const radius_in_miles = req.body.radius;
 	const radius = 1609.34*radius_in_miles;
 	
 	 collection
@@ -194,18 +194,18 @@ locationRoutes.route("/walking").get(function(req, res){
 
 
 function logical_and(list1, list2){
-
-	var combined_list = [];
-	for(var i =0 ; i<list1.length; ++i){
-		for(var j =0; j<list2.length; ++j){
-			if(list1[i].name==list2[j].name){
-				combined_list.push(list1[i]);
-			}
-		}
-	}
-	return combined_list; 
+	return list1.filter((value) => list2.includes(value));
 }
 
+// 
+function combine_unique_masterList_and_newList(masterList, newList) {
+	return masterList
+		.filter((value) => !newList.includes(value))
+		.concat(newList);
+}
+
+
+//may be void
 function clean_list(list){
 
 	let uniqueNames = []
@@ -295,10 +295,10 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 						console.log("Error fetching listings!");
 					} else if (result.length == 0) {
 						console.log(`No locations with specified coordinates and radius`);
-						console.log(result);
-					} else {
-						console.log("success");
 						resolve(result);
+					} else {
+						resolve(result);
+						console.log('success transport');
 					}
 				});
 			 }
@@ -326,8 +326,10 @@ function parseBudget(budget, distance, coordinates){
 				console.log("Error fetching listings!");
 			} else if (result.length == 0) {
 				console.log(`No locations with specified coordinates and radius`);
+				resolve(result);
 			} else {
 				resolve(result);
+				console.log('success budget');
 			}
 		});
 	})
@@ -354,8 +356,10 @@ function parseTags(tags, distance, coordinates){
 				console.log("Error fetching listings!");
 			} else if (result.length == 0) {
 				console.log(`No locations with specified coordinates and radius`);
+				resolve(result);
 			} else {
 				resolve(result);
+				console.log('success tags');
 			}
 		});
 	})
@@ -385,7 +389,7 @@ locationRoutes.route("/queryAll").get(async function (req, res) {
 	master_list = clean_list(master_list.concat(tags_list));
 	master_list = clean_list(master_list.concat(budget_list));
 
-	console.log(master_list);
+	// console.log(master_list);
 
 	if(master_list.length != 0){
 		res.send(master_list.slice(0,10));
