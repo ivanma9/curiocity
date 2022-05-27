@@ -134,12 +134,13 @@ locationRoutes.route("/distance").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
 	const collection = dbConnect.db('businesses').collection('locations');
 
-	const long = parseFloat(req.query.coordinates[0]);
-	const lat = parseFloat(req.query.coordinates[1]);  
+	const long = parseFloat(req.query.longitude);
+	const lat = parseFloat(req.query.latitude);  
 	const radius_in_miles = req.query.radius;
 	const radius = 1609.34*radius_in_miles;
 
-	
+	const url = s`Hey name is ${req.query.name}`;
+	useState({})	
 	 collection
 		.find(
 			{ coordinates:{
@@ -170,14 +171,13 @@ locationRoutes.route("/walking").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
 	const collection = dbConnect.db('businesses').collection('locations');
 
-	const long = parseFloat(req.query.coordinates[0]);
-	const lat = parseFloat(req.query.coordinates[1]); 
+	const long = parseFloat(req.query.longitude);
+	const lat = parseFloat(req.query.latitude); 
 	//const radius_in_miles = req.query.radius; 
 	const time = req.query.time * 3600; // hours to seconds
 	const walk_speed = 1.5; // average walking speed of 1.5 meters per second
 	const radius = time * walk_speed;
 	
-
 	
 	 collection
 		.find(
@@ -332,8 +332,8 @@ locationRoutes.route("/checkforbus").get(function (req, res) {
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
 		businesses.createIndex( { coordinates : "2dsphere" } );
-		const long = parseFloat(coordinates[0]);
-		const lat = parseFloat(coordinates[1]); 
+		const long = parseFloat(longitude);
+		const lat = parseFloat(latitude); 
 	
 		console.log("Parse transport");
 	
@@ -403,8 +403,8 @@ function parseBudget(budget, distance, coordinates){
 	return new Promise((resolve, reject) =>{
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
-		const long = parseFloat(coordinates[0]);
-		const lat = parseFloat(coordinates[1]); 
+		const long = parseFloat(longitude);
+		const lat = parseFloat(latitude); 
 		const radius_miles = parseFloat(distance);
 		const radius = radius_miles*1609; 
 		console.log(budget); 
@@ -440,8 +440,8 @@ function parseTags(tags, distance, coordinates){
 
 		const dbConnect = dbo.getDb();
 		const businesses = dbConnect.db('businesses').collection('locations');
-		const long = parseFloat(coordinates[0]);
-		const lat = parseFloat(coordinates[1]); 
+		const long = parseFloat(longitude);
+		const lat = parseFloat(latitude); 
 		const radius_miles = parseFloat(distance);
 		const radius = radius_miles*1609; 
 
