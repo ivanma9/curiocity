@@ -1,3 +1,4 @@
+//import bus_stops_json from bus.py
 const express = require("express");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
@@ -159,13 +160,15 @@ locationRoutes.route("/distance").get(function(req, res){
 				 console.log(result);
 			}
 		});
+
+
+
 } );
 
 
 locationRoutes.route("/walking").get(function(req, res){
 	const dbConnect = dbo.getDb(); 
-	const collection = dbConnect.db('businesses').collection('yelp_test');
-	collection.createIndex( { coordinates : "2dsphere" } );
+	const collection = dbConnect.db('businesses').collection('locations');
 
 	const long = parseFloat(req.query.coordinates[0]);
 	const lat = parseFloat(req.query.coordinates[1]); 
@@ -175,7 +178,8 @@ locationRoutes.route("/walking").get(function(req, res){
 	const radius = time * walk_speed;
 	
 
-	collection
+	
+	 collection
 		.find(
 			{ coordinates:{
 				$near:
@@ -192,6 +196,7 @@ locationRoutes.route("/walking").get(function(req, res){
 				res.status(400).send(`No locations with specified coordinates and radius`);
 			} else {
 				res.json(result);
+				 console.log(result);
 			}
 		});
 } );
@@ -233,19 +238,93 @@ function clean_list(list){
 
 }
 
+//insert bus stop locations into db
+locationRoutes.route("/insertbus").post(function (req, res) {
+	const dbConnect = dbo.getDb();
+	const busstops = dbConnect.db("transportation").collection("bus_stops");
+	console.log("hello")
+	console.log(busjsonstr);
+	var busjson = JSON.parse(busjsonstr);
+	for(i = 0; i < busjson.length; i++)
+	{
+		//console.log(busjson[i]);
+		//console.log('\n');
+		try{
+			busstops.insertOne(busjson[i]);
+			console.log("yay");
+		} catch (e) {
+			print(e);
+		}
+	}
+	busstops.insertOne({type: req.body.type,
+		coordinates: req.body.coordinates});
+	res.json("bus stop inserted");
+
+});
+
 locationRoutes.route("/checkforbus").get(function (req, res) {
+    const buscoorarr = new Promise((resolve, reject) => {
     const dbConnect = dbo.getDb();
     const businesses = dbConnect.db('businesses').collection('locations');
-    businesses.find({"name": "Savoy Kitchen"}).project({"coordinates": 1}).toArray(function (err, result) {
-        if (err) {
-            res.status(400).send("Error fetching listings!");
+    businesses.find({})
+        .project({"coordinates": 1,"_id": 0})
+        .toArray(
+            function (err, result) {
+            if (err) {
+                //res.status(400).send("Error fetching listings!");
+                reject('Promise is rejected'); 
+            }
+            else{
+                //res.json(result);
+                resolve(result);
+            }
         }
-        else{
-            console.log(result);
-            res.json(result);
-        }
+    );
     })
+    buscoorarr.then((message) => {
+        //console.log(message);
+        const dbConnect = dbo.getDb();
+        const buscollection = dbConnect.db('transportation').collection('bus_stops');
+        buscollection.createIndex( { coordinates : "2dsphere" } );
+        
+        const radius = 1609.32 * 0.25; //a close bus stop is defined as within 0.1 miles radius 
+
+        for(var i = 0; i < message.length; i++)
+        {
+            const long = parseFloat(message[i]['coordinates']['longitude']);
+            //console.log(long);
+            const lat = parseFloat(message[i]['coordinates']['latitude']);
+            //console.log(lat);
+
+            buscollection
+            .find(
+             { coordinates:{
+                 $near:
+                 {
+                     $geometry: {type: "Point", coordinates: [long, lat]},
+                     $maxDistance: parseFloat(radius)
+                 }
+             }}
+            ).toArray(function (err, result) {
+             if (err) {
+                 console.log(err);
+                 res.status(400).send("Error fetching listings!");
+             } else if (result.length == 0) {
+				 console.log("No bus stop near this business");
+             } else {
+                 console.log("Bus stop(s) found within 0.25 radius of business");
+             }
+            });
+        }
+    }).catch((message) => {
+        console.log(message);
+    });
+
+
+
 });
+
+
 
 //this is the function that will calculate a list of places based on a given transportation
  async function parseTransport(transportation, distance, time, coordinates){
