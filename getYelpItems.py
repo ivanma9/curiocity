@@ -122,7 +122,8 @@ PARAMETERS_LOS_ANGELES = []
 for elem in LA_COUNTY_CITIES[1:2]:
     PARAMETERS_LOS_ANGELES.append({
         'location': elem,
-        'radius': 40000
+        'radius': 40000,
+        'limit': 10
     })
 
 # This function gets parent aliases from the base alias list 
