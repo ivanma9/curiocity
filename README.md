@@ -109,3 +109,105 @@ The goal is to be able to take every single location or business entry and add t
 .env variables
 make sure to put `require('dotenv').config();` to use env variables.
 
+### Curiocity API
+
+| Verb   | Route                 | Description                                                         | Parameters |
+| ------ | --------------------- | ------------------------------------------------------------------- | ---------- |
+| `user.js`     |
+| POST   | `/signup`             | Creates an account for the user and returns the user's data         | Username, Password, First Name, Last Name |
+| POST   | `/login`              | Login given user cookies and verifies the data aligns w/ the server | Username, Password |
+| `tags.js`     |
+| POST   | `/insert/tag`         | Insert a custom tag into the database                               | Name, Category |
+| GET    | `/tags`               | Returns complete list of tags or optionally specify a category to return tags within that category        | Category |
+| `locations.js`     |
+| GET   | `/location`            | Fetch a location by its name                                        | Location name |
+| POST  | `/insert`              | Insert a location into the database                                 | Location name, Tags, City name |
+| GET    | `/update`             | Edit a location's city name or insert tags                          | Location name, Tags, City name |
+| GET | `/query`                 | Fetch a list of locations through any arbitrary parameters          | List of Preferences |
+| GET | `/distance` | Find all locations within a certain radius of some coordinates                   | Coordinates, Radius |
+| GET | `/walking`  | Find all locations within a walkable distance from some coordinates              | Coordinates, Time |
+
+
+
+### Sample Location Body
+```
+{
+        "_id": "6272329e407e013fb454bbf8",
+        "coordinates": {
+            "longitude": -118.120988635685,
+            "latitude": 34.078585203502
+        },
+        "hours": [
+            {
+                "open": [
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 0
+                    },
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 1
+                    },
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 2
+                    },
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 3
+                    },
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 4
+                    },
+                    {
+                        "is_overnight": false,
+                        "start": "1100",
+                        "end": "2100",
+                        "day": 5
+                    }
+                ],
+                "hours_type": "REGULAR",
+                "is_open_now": false
+            }
+        ],
+        "is_closed": false,
+        "location": {
+            "address1": "138 E Valley Blvd",
+            "address2": "",
+            "address3": "",
+            "city": "Alhambra",
+            "zip_code": "91801",
+            "country": "US",
+            "state": "CA",
+            "display_address": [
+                "138 E Valley Blvd",
+                "Alhambra, CA 91801"
+            ]
+        },
+        "name": "Savoy Kitchen",
+        "phone": "+16263089535",
+        "photos": [
+            "https://s3-media1.fl.yelpcdn.com/bphoto/BZhWr4kEW3KTwNb5wBxL_A/o.jpg",
+            "https://s3-media2.fl.yelpcdn.com/bphoto/dkjM6azDkJ6-CXhM1kAqpg/o.jpg",
+            "https://s3-media3.fl.yelpcdn.com/bphoto/YVAu5PWWavh4os7EZE0Dyw/o.jpg"
+        ],
+        "price": "$$",
+        "special_hours": null,
+        "tags": [
+            "Restaurants",
+            "Chinese ",
+            "Singaporean"
+        ]
+    }
+```
