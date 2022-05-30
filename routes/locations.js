@@ -138,9 +138,7 @@ locationRoutes.route("/distance").get(function(req, res){
 	const lat = parseFloat(req.query.latitude);  
 	const radius_in_miles = parseFloat(req.query.radius);
 	const radius = 1609.34*radius_in_miles;
-
-	const url = s`Hey name is ${req.query.name}`;
-	useState({})	
+	
 	 collection
 		.find(
 			{ coordinates:{
